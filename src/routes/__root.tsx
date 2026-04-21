@@ -1,6 +1,17 @@
 import { Outlet, Link, createRootRoute, useLocation } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { TopNav } from "../components/TopNav";
 import { Footer } from "../components/Footer";
+import { supabase, signInWithGoogle } from "@/lib/supabase";
+
+declare global {
+  interface Window {
+    forgeSSBAuth?: {
+      user: unknown;
+      signInWithGoogle: typeof signInWithGoogle;
+    };
+  }
+}
 
 function NotFoundComponent() {
   return (
@@ -32,9 +43,35 @@ export const Route = createRootRoute({
 
 function RootComponent() {
   const location = useLocation();
+  const [user, setUser] = useState<unknown>(null);
   const isTestActive =
     location.pathname.startsWith("/tests/wat/full/test") ||
     location.pathname.startsWith("/tests/wat/practice");
+
+  useEffect(() => {
+    let mounted = true;
+
+    supabase.auth.getUser().then(({ data }) => {
+      if (mounted) {
+        setUser(data.user ?? null);
+      }
+    });
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (mounted) {
+        setUser(session?.user ?? null);
+      }
+    });
+
+    return () => {
+      mounted = false;
+      listener.subscription.unsubscribe();
+    };
+  }, []);
+
+  useEffect(() => {
+    window.forgeSSBAuth = { user, signInWithGoogle };
+  }, [user]);
 
   return (
     <div className="flex min-h-screen flex-col bg-background">

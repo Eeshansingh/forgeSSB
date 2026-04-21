@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { OLQS, ratingFromScore } from "@/lib/wat-data";
 import { getFullTestAnalysis } from "@/lib/anthropic";
+import { supabase } from "@/lib/supabase";
 import { ChevronDown, Download, RotateCcw } from "lucide-react";
 
 export const Route = createFileRoute("/tests/wat/full/results")({
@@ -24,37 +25,52 @@ type Analysis = {
 };
 
 type WatResponse = { word: string; response: string };
+type AuthUser = { email?: string | null } | null;
 
 function ResultsPage() {
   const [tableOpen, setTableOpen] = useState(true);
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [responses, setResponses] = useState<WatResponse[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [user, setUser] = useState<AuthUser>(null);
+  const [showFirstAttemptPrompt, setShowFirstAttemptPrompt] = useState(false);
 
   useEffect(() => {
-    const stored = sessionStorage.getItem("wat_responses");
-    if (!stored) {
-      setError("No responses found. Please complete the test first.");
-      setLoading(false);
-      return;
-    }
-    const parsed: WatResponse[] = JSON.parse(stored);
-    setResponses(parsed);
+    const run = async () => {
+      setLoading(true);
+      try {
+        const stored = sessionStorage.getItem("wat_responses");
+        if (!stored) {
+          setError("No responses found. Please complete the test first.");
+          setAccessState("allowed");
+          return;
+        }
 
-    getFullTestAnalysis(parsed)
-      .then((data) => {
-        setAnalysis(data);
-        setLoading(false);
-      })
-      .catch((err) => {
+        const parsed: WatResponse[] = JSON.parse(stored);
+        setResponses(parsed);
+
+        const { data } = await supabase.auth.getUser();
+        const authUser = (data.user as AuthUser) ?? null;
+        setUser(authUser);
+        if (!authUser && Number(localStorage.getItem("forgessb_attempt_count") ?? "0") === 1) {
+          setShowFirstAttemptPrompt(true);
+        }
+
+        const dataAnalysis = await getFullTestAnalysis(parsed);
+        setAnalysis(dataAnalysis);
+      } catch (err) {
         console.error(err);
         setError("Analysis failed. Please try again.");
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+
+    void run();
   }, []);
 
-if (loading) {
+  if (loading) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-8 px-6">
         <div className="relative flex items-center justify-center">
@@ -110,6 +126,40 @@ if (loading) {
     Object.values(scores).reduce((a, b) => a + b, 0) / OLQS.length
   );
   const overallRating = ratingFromScore(overall);
+  const candidateName = user?.email ?? "Anonymous";
+
+  function downloadReport() {
+    const lines = [
+      "ForgeSSB WAT Report",
+      "===================",
+      `Candidate: ${candidateName}`,
+      `Date: ${new Date().toLocaleString()}`,
+      "",
+      "OLQ Scores",
+      "----------",
+      ...OLQS.map((olq) => `${olq}: ${scores[olq] ?? 0}`),
+      "",
+      "Pattern Analysis",
+      "----------------",
+      analysis.pattern_analysis,
+      "",
+      "Assessor Note",
+      "-------------",
+      analysis.assessor_note,
+      "",
+      "Response Log",
+      "------------",
+      ...responses.map((r, i) => `${i + 1}. ${r.word} -> ${r.response || "[No response]"}`),
+      "",
+    ];
+    const blob = new Blob([lines.join("\n")], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `forgessb-wat-full-report-${new Date().toISOString().slice(0, 10)}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
 
   return (
     <section className="mx-auto max-w-6xl px-6 py-16">
@@ -234,18 +284,40 @@ if (loading) {
 
       {/* CTAs */}
       <div className="mt-16 flex flex-col items-center justify-center gap-4 border-t border-border pt-10 sm:flex-row">
-        <button className="inline-flex items-center gap-3 border border-gold bg-gold/5 px-7 py-3.5 text-sm font-medium uppercase tracking-[0.18em] text-gold transition-all hover:bg-gold hover:text-primary-foreground">
+        <button
+          type="button"
+          onClick={downloadReport}
+          className="inline-flex items-center gap-3 border border-gold bg-gold/5 px-7 py-3.5 text-sm font-medium uppercase tracking-[0.18em] text-gold transition-all hover:bg-gold hover:text-primary-foreground"
+        >
           <Download className="h-4 w-4" />
           Download Report
         </button>
         <Link
-          to="/tests/wat/full/instructions"
+          to="/tests/wat"
           className="inline-flex items-center gap-3 border border-border px-7 py-3.5 text-sm font-medium uppercase tracking-[0.18em] text-foreground/80 transition-all hover:border-foreground/40 hover:text-foreground"
         >
           <RotateCcw className="h-4 w-4" />
           Attempt Again
         </Link>
       </div>
+
+      {showFirstAttemptPrompt && !user && (
+        <div className="mt-10 border border-gold/40 bg-surface-1/60 p-6 sm:p-7">
+          <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-gold">Recommendation</p>
+          <p className="mt-3 font-serif text-xl text-foreground">
+            Save your results and get 3 free attempts — sign in with Google
+          </p>
+          <div className="mt-5">
+            <button
+              type="button"
+              onClick={() => void signInWithGoogle()}
+              className="inline-flex items-center justify-center border border-gold bg-gold/10 px-7 py-3 text-xs uppercase tracking-[0.22em] text-gold transition-all hover:bg-gold hover:text-primary-foreground"
+            >
+              Sign In With Google
+            </button>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

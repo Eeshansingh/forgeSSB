@@ -1,4 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { getTestAttempts, recordTestAttempt, signInWithGoogle, supabase } from "@/lib/supabase";
 
 export const Route = createFileRoute("/tests/wat/full/setup")({
   head: () => ({
@@ -9,10 +11,152 @@ export const Route = createFileRoute("/tests/wat/full/setup")({
 
 function SetupPage() {
   const navigate = useNavigate();
+  const [checking, setChecking] = useState(true);
+  const [requiresLogin, setRequiresLogin] = useState(false);
+  const [attemptLimitReached, setAttemptLimitReached] = useState(false);
+  const [waitlistJoined, setWaitlistJoined] = useState(false);
+  const [waitlistLoading, setWaitlistLoading] = useState(false);
+  const [waitlistEmail, setWaitlistEmail] = useState<string>("your account");
 
-  function commence() {
+  async function commence() {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      const attemptCount = Number(localStorage.getItem("forgessb_attempt_count") ?? "0");
+      if (attemptCount >= 1) {
+        setRequiresLogin(true);
+        return;
+      }
+      localStorage.setItem("forgessb_attempt_count", "1");
+      sessionStorage.setItem("forgessb_attempt_in_progress", "true");
+    } else {
+      const count = await getTestAttempts(user.id);
+      if (count >= 3) {
+        setAttemptLimitReached(true);
+        return;
+      }
+      await recordTestAttempt(user?.id, undefined, "wat_full");
+      sessionStorage.setItem("forgessb_attempt_in_progress", "true");
+    }
+
     sessionStorage.setItem("wat_word_count", "60");
     navigate({ to: "/tests/wat/full/test" });
+  }
+
+  useEffect(() => {
+    const run = async () => {
+      try {
+        setWaitlistJoined(localStorage.getItem("forgessb_waitlist") === "true");
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        if (user?.email) {
+          setWaitlistEmail(user.email);
+        }
+        if (!user) {
+          const attemptCount = Number(localStorage.getItem("forgessb_attempt_count") ?? "0");
+          if (attemptCount >= 1) {
+            setRequiresLogin(true);
+          }
+          return;
+        }
+        const count = await getTestAttempts(user.id);
+        if (count >= 3) {
+          setAttemptLimitReached(true);
+        }
+      } finally {
+        setChecking(false);
+      }
+    };
+    void run();
+  }, []);
+
+  async function notifyWaitlist() {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user?.id || !user?.email) return;
+    setWaitlistLoading(true);
+    try {
+      await supabase.from("waitlist").insert({ user_id: user.id, email: user.email });
+      localStorage.setItem("forgessb_waitlist", "true");
+      setWaitlistJoined(true);
+      setWaitlistEmail(user.email);
+    } finally {
+      setWaitlistLoading(false);
+    }
+  }
+
+  if (checking) {
+    return (
+      <section className="relative">
+        <div className="absolute inset-0 grid-texture-fine opacity-60" aria-hidden="true" />
+        <div className="relative mx-auto max-w-2xl px-6 py-20 text-center">
+          <p className="font-mono text-[11px] uppercase tracking-[0.35em] text-gold">Verifying Access</p>
+          <p className="mt-4 text-foreground/80">Stand by while we validate your assessment allocation.</p>
+        </div>
+      </section>
+    );
+  }
+
+  if (requiresLogin) {
+    return (
+      <section className="relative">
+        <div className="absolute inset-0 grid-texture-fine opacity-60" aria-hidden="true" />
+        <div className="relative mx-auto max-w-2xl px-6 py-20">
+          <div className="border border-gold/40 bg-surface-1/70 p-8 sm:p-10">
+            <p className="font-mono text-[11px] uppercase tracking-[0.35em] text-gold">Access Control</p>
+            <h1 className="mt-4 font-serif text-3xl text-foreground sm:text-4xl">Identity Verification Required</h1>
+            <p className="mt-6 text-base leading-relaxed text-foreground/85">
+              AI analysis costs money to run. Help us know who you are — sign in with Google for 3 free attempts.
+            </p>
+            <button
+              type="button"
+              onClick={() => void signInWithGoogle()}
+              className="mt-8 inline-flex items-center justify-center border border-gold bg-gold/10 px-7 py-3.5 font-mono text-xs uppercase tracking-[0.22em] text-gold transition-all hover:bg-gold hover:text-primary-foreground"
+            >
+              Sign In With Google
+            </button>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (attemptLimitReached) {
+    const displayEmail = waitlistEmail;
+    return (
+      <section className="relative">
+        <div className="absolute inset-0 grid-texture-fine opacity-60" aria-hidden="true" />
+        <div className="relative mx-auto max-w-2xl px-6 py-20">
+          <div className="border border-gold/40 bg-surface-1/70 p-8 sm:p-10">
+            <p className="font-mono text-[11px] uppercase tracking-[0.35em] text-gold">Allocation Exhausted</p>
+            <h1 className="mt-4 font-serif text-3xl text-foreground sm:text-4xl">You&apos;ve used your 3 free attempts.</h1>
+            <p className="mt-6 font-mono text-xs uppercase tracking-[0.2em] text-gold/80">
+              Registered Account · {displayEmail}
+            </p>
+            {waitlistJoined ? (
+              <p className="mt-6 text-base leading-relaxed text-foreground/85">
+                You&apos;re on the list. We&apos;ll reach out to {displayEmail} when ForgeSSB launches paid plans.
+              </p>
+            ) : (
+              <div className="mt-8">
+                <button
+                  type="button"
+                  onClick={() => void notifyWaitlist()}
+                  disabled={waitlistLoading}
+                  className="inline-flex items-center justify-center border border-gold bg-gold/10 px-7 py-3.5 font-mono text-xs uppercase tracking-[0.22em] text-gold transition-all hover:bg-gold hover:text-primary-foreground disabled:opacity-60"
+                >
+                  {waitlistLoading ? "Submitting..." : "Notify Me When Pricing Launches"}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+    );
   }
 
   return (
