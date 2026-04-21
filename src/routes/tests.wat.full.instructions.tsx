@@ -1,0 +1,100 @@
+import { createFileRoute, Link } from "@tanstack/react-router";
+
+export const Route = createFileRoute("/tests/wat/full/instructions")({
+  head: () => ({
+    meta: [
+      { title: "WAT Full Simulation — Briefing — ForgeSSB" },
+      {
+        name: "description",
+        content:
+          "Briefing for the WAT Full Simulation. Rules, timer protocol and OLQ assessment overview.",
+      },
+    ],
+  }),
+  component: InstructionsPage,
+});
+
+const RULES = [
+  "Sixty stimulus words will be presented in sequence.",
+  "Each word remains on screen for fifteen seconds. The first response that surfaces is what matters.",
+  "Type a complete, sentence-fragment response. One-word answers are not assessed.",
+  "When the countdown reaches zero, the system advances automatically. Unfinished responses are recorded as-is.",
+  "There is no back-button. There is no skip. You commence — you complete.",
+];
+
+const OLQ_BRIEF = [
+  { name: "Officer-Like Qualities (OLQs)", text: "Fifteen attributes the SSB Board observes — from Effective Intelligence and Initiative to Courage and Determination. Your responses are scored against each." },
+  { name: "What we measure", text: "Tone, agency, constructiveness, leadership signals and emotional regulation under load — not vocabulary." },
+  { name: "What you receive", text: "A complete OLQ scorecard, response-by-response AI commentary, pattern analysis and prioritised improvement areas." },
+];
+
+function InstructionsPage() {
+  return (
+    <section className="relative">
+      <div className="absolute inset-0 grid-texture-fine opacity-60" aria-hidden="true" />
+      <div className="relative mx-auto max-w-3xl px-6 py-20">
+        <p className="font-mono text-[11px] uppercase tracking-[0.35em] text-gold">
+          Full Simulation
+        </p>
+        <h1 className="mt-3 font-serif text-5xl text-foreground">Briefing</h1>
+        <div className="mt-6 h-px w-20 bg-gold/50" />
+
+        <p className="mt-8 text-base leading-relaxed text-foreground/80">
+          You are about to enter the Word Association Test under live conditions. Read
+          the protocol below. When ready, hold the line.
+        </p>
+
+        <div className="mt-12">
+          <h2 className="font-mono text-xs uppercase tracking-[0.3em] text-gold">
+            § Protocol
+          </h2>
+          <ol className="mt-5 space-y-4">
+            {RULES.map((r, i) => (
+              <li
+                key={i}
+                className="flex gap-5 border-l border-gold/30 bg-surface-1/40 p-5"
+              >
+                <span className="font-mono text-sm text-gold">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <span className="text-sm leading-relaxed text-foreground/85">{r}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+
+        <div className="mt-14">
+          <h2 className="font-mono text-xs uppercase tracking-[0.3em] text-gold">
+            § Assessment
+          </h2>
+          <div className="mt-5 space-y-4">
+            {OLQ_BRIEF.map((o) => (
+              <div key={o.name} className="border border-border bg-surface-1 p-5">
+                <h3 className="font-serif text-lg text-foreground">{o.name}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{o.text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-16 flex flex-col items-center gap-4 border-t border-border pt-10">
+          <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
+            By proceeding you accept the conditions of assessment
+          </p>
+          <Link
+            to="/tests/wat/full/setup"
+            className="inline-flex items-center gap-3 border border-gold bg-gold/10 px-8 py-4 text-sm font-medium uppercase tracking-[0.2em] text-gold transition-all hover:bg-gold hover:text-primary-foreground"
+          >
+            I Am Ready — Commence Assessment →
+          </Link>
+          <Link
+            to="/tests/wat"
+            className="text-xs uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground"
+          >
+            ← Stand Down
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
