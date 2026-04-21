@@ -14,18 +14,19 @@ export const Route = createFileRoute("/tests/wat/full/test")({
 });
 
 const SECONDS_PER_WORD = 15;
-const stored = sessionStorage.getItem("wat_word_count");
-const TOTAL_WORDS = stored ? Math.min(parseInt(stored), WAT_WORDS.length) : 60;
-
-export type WatResponse = { word: string; response: string };
 
 function WatTestScreen() {
   const navigate = useNavigate();
-  const words = useMemo(() => WAT_WORDS.slice(0, TOTAL_WORDS), []);
+  const stored = sessionStorage.getItem("wat_word_count");
+  const TOTAL_WORDS = stored ? Math.min(parseInt(stored), WAT_WORDS.length) : 60;
+  const words = useMemo(() => {
+	  const shuffled = [...WAT_WORDS].sort(() => Math.random() - 0.5);
+	  return shuffled.slice(0, TOTAL_WORDS);
+  }, [TOTAL_WORDS]);
   const [index, setIndex] = useState(0);
   const [response, setResponse] = useState("");
   const [timeLeft, setTimeLeft] = useState(SECONDS_PER_WORD);
-  const [allResponses, setAllResponses] = useState<WatResponse[]>([]);
+  const [allResponses, setAllResponses] = useState<{ word: string; response: string }[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const word = words[index];
@@ -58,7 +59,6 @@ function WatTestScreen() {
   function advance() {
     const updated = [...allResponses, { word, response }];
     setAllResponses(updated);
-
     if (isLast) {
       sessionStorage.setItem("wat_responses", JSON.stringify(updated));
       navigate({ to: "/tests/wat/full/results" });
@@ -88,8 +88,9 @@ function WatTestScreen() {
 
   return (
     <div className="fixed inset-0 flex flex-col bg-background">
-      <header className="border-b border-border/50 px-8 py-5">
-        <div className="mx-auto flex max-w-5xl items-center gap-6">
+      {/* TOP BAR */}
+      <header className="border-b border-border/50 px-4 py-4 sm:px-8 sm:py-5">
+        <div className="mx-auto flex max-w-5xl items-center gap-4 sm:gap-6">
           <div className="font-mono text-xs uppercase tracking-[0.25em] text-gold">
             WAT · Live
           </div>
@@ -110,7 +111,8 @@ function WatTestScreen() {
         </div>
       </header>
 
-      <div className="relative flex flex-1 items-center justify-center overflow-hidden px-6">
+      {/* CENTRE */}
+      <div className="relative flex flex-1 items-center justify-center overflow-hidden px-4 sm:px-6">
         <div className="absolute inset-0 grid-texture opacity-40" aria-hidden="true" />
         <div className="relative w-full max-w-3xl">
           <p className="text-center font-mono text-[10px] uppercase tracking-[0.4em] text-gold/70">
@@ -118,12 +120,12 @@ function WatTestScreen() {
           </p>
           <h1
             key={index}
-            className="animate-word-in mt-6 text-center font-serif font-semibold uppercase leading-none text-foreground"
-            style={{ fontSize: "clamp(3.5rem, 11vw, 7rem)", letterSpacing: "0.05em" }}
+            className="animate-word-in mt-4 text-center font-serif font-semibold uppercase leading-none text-foreground sm:mt-6"
+            style={{ fontSize: "clamp(2.5rem, 11vw, 7rem)", letterSpacing: "0.05em" }}
           >
             {word}
           </h1>
-          <form onSubmit={handleSubmit} className="mt-12">
+          <form onSubmit={handleSubmit} className="mt-8 sm:mt-12">
             <input
               ref={inputRef}
               type="text"
@@ -131,22 +133,34 @@ function WatTestScreen() {
               onChange={(e) => setResponse(e.target.value)}
               placeholder="Your response..."
               autoComplete="off"
-              className="w-full border-b-2 border-border bg-surface-1/40 px-5 py-4 text-center font-serif text-2xl text-foreground placeholder:font-sans placeholder:text-base placeholder:uppercase placeholder:tracking-[0.2em] placeholder:text-muted-foreground/70 focus:border-gold focus:bg-surface-1 focus:outline-none"
+              className="w-full border-b-2 border-border bg-surface-1/40 px-4 py-3 text-center font-serif text-xl text-foreground placeholder:font-sans placeholder:text-sm placeholder:uppercase placeholder:tracking-[0.2em] placeholder:text-muted-foreground/70 focus:border-gold focus:bg-surface-1 focus:outline-none sm:px-5 sm:py-4 sm:text-2xl"
             />
-            <p className="mt-4 text-center font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
-              Press Enter to submit · Auto-advance on timer
-            </p>
+            <div className="mt-4 flex items-center justify-center gap-4">
+              <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground hidden sm:block">
+                Press Enter to submit · Auto-advance on timer
+              </p>
+              <button
+                type="submit"
+                className="sm:hidden border border-gold/60 bg-gold/10 px-8 py-3 font-mono text-xs uppercase tracking-[0.2em] text-gold active:bg-gold/20"
+              >
+                Submit →
+              </button>
+              <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground sm:hidden">
+                Auto-advances on timer
+              </p>
+            </div>
           </form>
         </div>
       </div>
 
-      <footer className="border-t border-border/50 px-8 py-6">
+      {/* BOTTOM TIMER */}
+      <footer className="border-t border-border/50 px-4 py-4 sm:px-8 sm:py-6">
         <div className="mx-auto max-w-5xl">
           <div className="flex items-end justify-between">
             <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
               Time Remaining
             </p>
-            <p className={`font-mono text-5xl font-medium tabular-nums ${timerTone}`}>
+            <p className={`font-mono text-4xl font-medium tabular-nums sm:text-5xl ${timerTone}`}>
               {timerText}
             </p>
           </div>
