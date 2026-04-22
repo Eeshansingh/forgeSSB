@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { getFullTestAnalysis } from "@/lib/anthropic";
 import { OLQS, WAT_WORDS, ratingFromScore } from "@/lib/wat-data";
 import { getTestAttempts, recordTestAttempt, signInWithGoogle, supabase, updateTestAttempt } from "@/lib/supabase";
+import { AnalysisLoading } from "@/components/AnalysisLoading";
 import { ChevronDown, Download, RotateCcw } from "lucide-react";
 
 const ADMIN_EMAILS = ["s.eeshan3333@gmail.com"];
@@ -382,6 +383,9 @@ function PracticePage() {
                     </button>
                   ))}
                 </div>
+                <p className="mt-3 text-xs leading-relaxed text-muted-foreground/70">
+                  After completing all words, our AI will analyse your full response pattern and generate a comprehensive OLQ assessment.
+                </p>
               </div>
               <div className="mt-8">
                 <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">Session Mode</p>
@@ -508,24 +512,7 @@ function PracticePage() {
   }
 
   if (loadingAnalysis) {
-    return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-8 px-6">
-        <div className="relative flex items-center justify-center">
-          <div className="h-24 w-24 animate-spin rounded-full border border-gold/20 border-t-gold" />
-          <div
-            className="absolute h-16 w-16 animate-spin rounded-full border border-gold/10 border-t-gold/60"
-            style={{ animationDirection: "reverse", animationDuration: "1.5s" }}
-          />
-          <div className="absolute font-serif text-2xl text-gold">★</div>
-        </div>
-        <div className="text-center">
-          <p className="font-mono text-xs uppercase tracking-[0.4em] text-gold">Analysing Responses</p>
-          <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
-            AI assessment in progress · Please wait
-          </p>
-        </div>
-      </div>
-    );
+    return <AnalysisLoading />;
   }
 
   if (error || !analysis) {

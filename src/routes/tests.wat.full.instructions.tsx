@@ -28,6 +28,21 @@ const OLQ_BRIEF = [
   { name: "What you receive", text: "A complete OLQ scorecard, response-by-response AI commentary, pattern analysis and prioritised improvement areas." },
 ];
 
+const OLQ_EXPLAINER = [
+  {
+    q: "What are OLQs?",
+    a: "Officer-Like Qualities are fifteen psychological attributes that the Services Selection Board uses to evaluate whether a candidate has the potential to lead soldiers under pressure. They were developed from decades of military psychology research and cover the full spectrum of effective leadership — from raw cognitive ability and decisiveness to social cohesion and physical courage.",
+  },
+  {
+    q: "Why does the SSB use them?",
+    a: "The SSB needs a consistent, bias-resistant framework that works across five days and four test formats. OLQs give assessors a shared vocabulary: rather than \"he seemed confident,\" they record a score against Self Confidence. This lets different assessors compare notes precisely and spot candidates who perform well under structured pressure but collapse in unstructured tasks — or vice versa.",
+  },
+  {
+    q: "How does the AI score your WAT responses?",
+    a: "Each word-association response is a micro-sample of your instinctive thought. The AI reads the tone (agency vs. helplessness), action orientation (constructive vs. passive), social signals (inclusive vs. isolating), and emotional register (regulated vs. reactive). Patterns across all responses are then mapped to each OLQ. A response like \"Fear → Face it head-on\" scores differently on Courage and Self Confidence than \"Fear → Avoid when possible\" — even though both are grammatically complete.",
+  },
+];
+
 function InstructionsPage() {
   return (
     <section className="relative">
@@ -72,6 +87,20 @@ function InstructionsPage() {
               <div key={o.name} className="border border-border bg-surface-1 p-5">
                 <h3 className="font-serif text-lg text-foreground">{o.name}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{o.text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-14">
+          <h2 className="font-mono text-xs uppercase tracking-[0.3em] text-gold">
+            § Understanding OLQs
+          </h2>
+          <div className="mt-5 space-y-4">
+            {OLQ_EXPLAINER.map((item) => (
+              <div key={item.q} className="border border-border bg-surface-1 p-5">
+                <h3 className="font-serif text-lg text-foreground">{item.q}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.a}</p>
               </div>
             ))}
           </div>

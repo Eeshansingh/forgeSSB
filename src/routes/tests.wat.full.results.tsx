@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { OLQS, ratingFromScore } from "@/lib/wat-data";
 import { getFullTestAnalysis } from "@/lib/anthropic";
 import { supabase, updateTestAttempt } from "@/lib/supabase";
+import { AnalysisLoading } from "@/components/AnalysisLoading";
 import { ChevronDown, Download, RotateCcw } from "lucide-react";
 
 export const Route = createFileRoute("/tests/wat/full/results")({
@@ -82,38 +83,7 @@ function ResultsPage() {
   }, []);
 
   if (loading) {
-    return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-8 px-6">
-        <div className="relative flex items-center justify-center">
-          <div className="h-24 w-24 animate-spin rounded-full border border-gold/20 border-t-gold" />
-          <div className="absolute h-16 w-16 animate-spin rounded-full border border-gold/10 border-t-gold/60" style={{ animationDirection: "reverse", animationDuration: "1.5s" }} />
-          <div className="absolute font-serif text-2xl text-gold">★</div>
-        </div>
-        <div className="text-center">
-          <p className="font-mono text-xs uppercase tracking-[0.4em] text-gold">
-            Analysing Responses
-          </p>
-          <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
-            AI assessment in progress · Please wait
-          </p>
-        </div>
-        <div className="flex gap-2">
-          {[0, 1, 2, 3, 4].map((i) => (
-            <div
-              key={i}
-              className="h-1 w-8 bg-gold/30"
-              style={{
-                animation: "pulse 1.5s ease-in-out infinite",
-                animationDelay: `${i * 0.2}s`,
-              }}
-            />
-          ))}
-        </div>
-        <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground/50">
-          Forged under pressure
-        </p>
-      </div>
-    );
+    return <AnalysisLoading />;
   }
 
   if (error || !analysis) {

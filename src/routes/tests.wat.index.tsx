@@ -92,11 +92,11 @@ function WatModePage() {
           to="/tests/wat/practice"
           abbr="Practice"
           title="Practice Mode"
-          description="One word at a time. Immediate AI feedback after each response. Build instinct without the pressure of the clock."
+          description="Answer all words first, then receive comprehensive AI analysis of your OLQ profile. No per-word feedback — your complete assessment arrives at the end."
           bullets={[
-            "Single word per round",
-            "Instant feedback card",
-            "End at any time",
+            "Choose 5, 10, 20, 30 or 60 words",
+            "Full OLQ assessment on completion",
+            "Timed or untimed — your choice",
           ]}
           icon={<Activity className="h-6 w-6" />}
           cta="Begin Practice"
