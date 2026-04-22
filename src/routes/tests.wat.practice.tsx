@@ -568,14 +568,14 @@ function PracticePage() {
   }
 
   return (
-    <section className="mx-auto max-w-6xl px-6 py-16">
+    <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
       <div className="border-b border-border pb-10">
         <p className="font-mono text-[11px] uppercase tracking-[0.35em] text-gold">Report · Practice Simulation</p>
-        <h1 className="mt-3 font-serif text-5xl text-foreground">Assessment Complete</h1>
+        <h1 className="mt-3 font-serif text-3xl text-foreground sm:text-5xl">Assessment Complete</h1>
         <p className="mt-3 text-base text-muted-foreground">
           WAT Practice · {allResponses.length} Responses Analysed
         </p>
-        <div className="mt-8 grid gap-px bg-border sm:grid-cols-3">
+        <div className="mt-8 grid gap-px bg-border grid-cols-1 sm:grid-cols-3">
           <Stat label="Composite OLQ Score" value={`${overall}`} suffix="/ 100" />
           <Stat label="Overall Rating" value={overallRating.label} tone={overallRating.tone} />
           <Stat label="Responses Recorded" value={`${allResponses.length}`} />
@@ -590,7 +590,7 @@ function PracticePage() {
       </div>
       <div className="mt-14">
         <SectionHeader number="I" title="Officer-Like Qualities" subtitle="Per-attribute breakdown" />
-        <div className="mt-8 grid gap-px bg-border sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-8 grid gap-px bg-border grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {OLQS.map((olq) => {
             const score = scores[olq] ?? 0;
             const r = ratingFromScore(score);
@@ -609,8 +609,8 @@ function PracticePage() {
           })}
         </div>
       </div>
-      <div className="mt-16 grid gap-px bg-border lg:grid-cols-5">
-        <div className="bg-surface-1 p-8 lg:col-span-3">
+      <div className="mt-16 flex flex-col gap-px lg:grid lg:grid-cols-5">
+        <div className="bg-surface-1 p-6 sm:p-8 lg:col-span-3">
           <SectionHeader number="II" title="Pattern Analysis" />
           <div className="mt-6 space-y-4 text-sm leading-relaxed text-foreground/85">
             {analysis.pattern_analysis.split("\n\n").map((para, i) => (
@@ -618,7 +618,7 @@ function PracticePage() {
             ))}
           </div>
         </div>
-        <div className="bg-surface-1 p-8 lg:col-span-2">
+        <div className="bg-surface-1 p-6 sm:p-8 lg:col-span-2">
           <SectionHeader number="III" title="Improvement Areas" />
           <ul className="mt-6 space-y-5 text-sm">
             {analysis.improvement_areas.map((item, i) => (
@@ -646,21 +646,21 @@ function PracticePage() {
           <ChevronDown className={`h-5 w-5 text-gold transition-transform ${tableOpen ? "rotate-180" : ""}`} />
         </button>
         {tableOpen && (
-          <div className="overflow-x-auto border border-t-0 border-border">
+          <div className="border border-t-0 border-border">
             <table className="w-full text-sm">
               <thead className="bg-surface-2 text-left font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
                 <tr>
-                  <th className="px-5 py-3 font-medium">#</th>
-                  <th className="px-5 py-3 font-medium">Stimulus</th>
-                  <th className="px-5 py-3 font-medium">Your Response</th>
+                  <th className="hidden px-5 py-3 font-medium sm:table-cell">#</th>
+                  <th className="px-4 py-3 font-medium sm:px-5">Stimulus</th>
+                  <th className="px-4 py-3 font-medium sm:px-5">Your Response</th>
                 </tr>
               </thead>
               <tbody>
                 {allResponses.map((r, i) => (
                   <tr key={i} className="border-t border-border/50 hover:bg-surface-1/60">
-                    <td className="px-5 py-4 font-mono text-xs text-muted-foreground">{String(i + 1).padStart(2, "0")}</td>
-                    <td className="px-5 py-4 font-serif text-base text-gold">{r.word}</td>
-                    <td className="px-5 py-4 text-foreground/90">
+                    <td className="hidden px-5 py-4 font-mono text-xs text-muted-foreground sm:table-cell">{String(i + 1).padStart(2, "0")}</td>
+                    <td className="px-4 py-3 font-serif text-base text-gold sm:px-5 sm:py-4">{r.word}</td>
+                    <td className="px-4 py-3 text-foreground/90 sm:px-5 sm:py-4">
                       {r.response || <span className="text-muted-foreground italic">No response</span>}
                     </td>
                   </tr>
@@ -670,18 +670,18 @@ function PracticePage() {
           </div>
         )}
       </div>
-      <div className="mt-16 flex flex-col items-center justify-center gap-4 border-t border-border pt-10 sm:flex-row">
+      <div className="mt-16 flex flex-col gap-3 border-t border-border pt-10 sm:flex-row sm:items-center sm:justify-center sm:gap-4">
         <button
           type="button"
           onClick={downloadReport}
-          className="inline-flex items-center gap-3 border border-gold bg-gold/5 px-7 py-3.5 text-sm font-medium uppercase tracking-[0.18em] text-gold transition-all hover:bg-gold hover:text-primary-foreground"
+          className="inline-flex w-full items-center justify-center gap-3 border border-gold bg-gold/5 px-7 py-3.5 text-sm font-medium uppercase tracking-[0.18em] text-gold transition-all hover:bg-gold hover:text-primary-foreground sm:w-auto"
         >
           <Download className="h-4 w-4" />
           Download Report
         </button>
         <Link
           to="/tests/wat"
-          className="inline-flex items-center gap-3 border border-border px-7 py-3.5 text-sm font-medium uppercase tracking-[0.18em] text-foreground/80 transition-all hover:border-foreground/40 hover:text-foreground"
+          className="inline-flex w-full items-center justify-center gap-3 border border-border px-7 py-3.5 text-sm font-medium uppercase tracking-[0.18em] text-foreground/80 transition-all hover:border-foreground/40 hover:text-foreground sm:w-auto"
         >
           <RotateCcw className="h-4 w-4" />
           Attempt Again
