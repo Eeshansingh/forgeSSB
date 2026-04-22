@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { OLQS, ratingFromScore } from "@/lib/wat-data";
 import { getFullTestAnalysis } from "@/lib/anthropic";
-import { supabase } from "@/lib/supabase";
+import { supabase, updateTestAttempt } from "@/lib/supabase";
 import { ChevronDown, Download, RotateCcw } from "lucide-react";
 
 export const Route = createFileRoute("/tests/wat/full/results")({
@@ -59,6 +59,17 @@ function ResultsPage() {
 
         const dataAnalysis = await getFullTestAnalysis(parsed);
         setAnalysis(dataAnalysis);
+        const attemptId = sessionStorage.getItem("forgessb_current_attempt_id");
+        if (attemptId) {
+          console.log("[wat_full.results] attempt_id", attemptId);
+          const updated = await updateTestAttempt(
+            attemptId,
+            parsed,
+            dataAnalysis as unknown as object,
+            parsed.length
+          );
+          console.log("[wat_full.results] updateTestAttempt result", updated);
+        }
       } catch (err) {
         console.error(err);
         setError("Analysis failed. Please try again.");

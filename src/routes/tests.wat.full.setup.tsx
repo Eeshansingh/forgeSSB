@@ -2,6 +2,8 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { getTestAttempts, recordTestAttempt, signInWithGoogle, supabase } from "@/lib/supabase";
 
+const ADMIN_EMAILS = ["s.eeshan3333@gmail.com"];
+
 export const Route = createFileRoute("/tests/wat/full/setup")({
   head: () => ({
     meta: [{ title: "WAT Setup — ForgeSSB" }],
@@ -18,10 +20,39 @@ function SetupPage() {
   const [waitlistLoading, setWaitlistLoading] = useState(false);
   const [waitlistEmail, setWaitlistEmail] = useState<string>("your account");
 
+  function getAnonymousId() {
+    const key = "forgessb_anonymous_id";
+    const existing = localStorage.getItem(key);
+    if (existing) return existing;
+    const generated =
+      typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+        ? crypto.randomUUID()
+        : `anon-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    localStorage.setItem(key, generated);
+    return generated;
+  }
+
   async function commence() {
     const {
       data: { user },
     } = await supabase.auth.getUser();
+
+    if (user && ADMIN_EMAILS.includes(user.email ?? "")) {
+      const attemptId = await recordTestAttempt(
+        user.id,
+        undefined,
+        "wat_full",
+        undefined,
+        undefined,
+        undefined,
+        user.email ?? undefined
+      );
+      if (attemptId) sessionStorage.setItem("forgessb_current_attempt_id", attemptId);
+      sessionStorage.setItem("forgessb_attempt_in_progress", "true");
+      sessionStorage.setItem("wat_word_count", "60");
+      navigate({ to: "/tests/wat/full/test" });
+      return;
+    }
 
     if (!user) {
       const attemptCount = Number(localStorage.getItem("forgessb_attempt_count") ?? "0");
@@ -31,13 +62,17 @@ function SetupPage() {
       }
       localStorage.setItem("forgessb_attempt_count", "1");
       sessionStorage.setItem("forgessb_attempt_in_progress", "true");
+      const anonId = getAnonymousId();
+      const attemptId = await recordTestAttempt(undefined, anonId, "wat_full");
+      if (attemptId) sessionStorage.setItem("forgessb_current_attempt_id", attemptId);
     } else {
       const count = await getTestAttempts(user.id);
       if (count >= 3) {
         setAttemptLimitReached(true);
         return;
       }
-      await recordTestAttempt(user?.id, undefined, "wat_full");
+      const attemptId = await recordTestAttempt(user?.id, undefined, "wat_full", undefined, undefined, undefined, user?.email ?? undefined);
+      if (attemptId) sessionStorage.setItem("forgessb_current_attempt_id", attemptId);
       sessionStorage.setItem("forgessb_attempt_in_progress", "true");
     }
 
@@ -62,6 +97,10 @@ function SetupPage() {
           }
           return;
         }
+        if (ADMIN_EMAILS.includes(user.email ?? "")) {
+          return;
+        }
+
         const count = await getTestAttempts(user.id);
         if (count >= 3) {
           setAttemptLimitReached(true);

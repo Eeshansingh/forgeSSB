@@ -2,8 +2,10 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { getFullTestAnalysis } from "@/lib/anthropic";
 import { OLQS, WAT_WORDS, ratingFromScore } from "@/lib/wat-data";
-import { getTestAttempts, recordTestAttempt, signInWithGoogle, supabase } from "@/lib/supabase";
+import { getTestAttempts, recordTestAttempt, signInWithGoogle, supabase, updateTestAttempt } from "@/lib/supabase";
 import { ChevronDown, Download, RotateCcw } from "lucide-react";
+
+const ADMIN_EMAILS = ["s.eeshan3333@gmail.com"];
 
 export const Route = createFileRoute("/tests/wat/practice")({
   head: () => ({
@@ -98,6 +100,10 @@ function PracticePage() {
           setAccessState("allowed");
           return;
         }
+        if (ADMIN_EMAILS.includes(authUser.email ?? "")) {
+          setAccessState("allowed");
+          return;
+        }
 
         const count = await getTestAttempts(authUser.id);
         if (count >= 3) {
@@ -151,6 +157,17 @@ function PracticePage() {
       try {
         const result = await getFullTestAnalysis(allResponses);
         setAnalysis(result);
+        const attemptId = sessionStorage.getItem("forgessb_current_attempt_id");
+        if (attemptId) {
+          console.log("[wat_practice.results] attempt_id", attemptId);
+          const updated = await updateTestAttempt(
+            attemptId,
+            allResponses,
+            result as unknown as object,
+            allResponses.length
+          );
+          console.log("[wat_practice.results] updateTestAttempt result", updated);
+        }
       } catch {
         setError("Analysis failed. Please try again.");
       } finally {
@@ -167,6 +184,30 @@ function PracticePage() {
     const authUser = (currentUser as AuthUser) ?? null;
     setUser(authUser);
 
+    if (authUser && ADMIN_EMAILS.includes(authUser.email ?? "")) {
+      const attemptId = await recordTestAttempt(
+        authUser.id,
+        undefined,
+        "wat_practice",
+        undefined,
+        undefined,
+        undefined,
+        authUser.email ?? undefined
+      );
+      if (attemptId) sessionStorage.setItem("forgessb_current_attempt_id", attemptId);
+      sessionStorage.setItem("forgessb_attempt_in_progress", "true");
+      const shuffled = [...WAT_WORDS].sort(() => Math.random() - 0.5).slice(0, wordCount);
+      setWords(shuffled);
+      setPhase("test");
+      setIndex(0);
+      setResponse("");
+      setTimeLeft(SECONDS_PER_WORD);
+      setAllResponses([]);
+      setAnalysis(null);
+      setError(null);
+      return;
+    }
+
     if (!authUser) {
       getAnonymousId();
       const rawCount = Number(localStorage.getItem(ATTEMPT_COUNT_KEY) ?? "0");
@@ -178,13 +219,28 @@ function PracticePage() {
       localStorage.setItem(ATTEMPT_COUNT_KEY, "1");
       sessionStorage.setItem("forgessb_attempt_in_progress", "true");
       setShowFirstAttemptPrompt(true);
+      const attemptId = await recordTestAttempt(
+        undefined,
+        localStorage.getItem(ANON_ID_KEY) ?? undefined,
+        "wat_practice"
+      );
+      if (attemptId) sessionStorage.setItem("forgessb_current_attempt_id", attemptId);
     } else {
       const count = await getTestAttempts(authUser.id);
       if (count >= 3) {
         setAccessState("attempt_limit");
         return;
       }
-      await recordTestAttempt(authUser?.id, undefined, "wat_practice");
+      const attemptId = await recordTestAttempt(
+        authUser?.id,
+        undefined,
+        "wat_practice",
+        undefined,
+        undefined,
+        undefined,
+        authUser?.email ?? undefined
+      );
+      if (attemptId) sessionStorage.setItem("forgessb_current_attempt_id", attemptId);
       sessionStorage.setItem("forgessb_attempt_in_progress", "true");
     }
 

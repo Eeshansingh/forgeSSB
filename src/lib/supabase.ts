@@ -49,10 +49,64 @@ export async function getTestAttempts(userId?: string, anonymousId?: string) {
   return 0
 }
 
-export async function recordTestAttempt(userId?: string, anonymousId?: string, testType: string = 'full') {
-  await supabase.from('test_attempts').insert({
-    user_id: userId || null,
-    anonymous_id: anonymousId || null,
-    test_type: testType
-  })
+export async function recordTestAttempt(
+  userId?: string,
+  anonymousId?: string,
+  testType: string = 'full',
+  responses?: { word: string; response: string }[],
+  analysis?: object,
+  wordCount?: number,
+  email?: string
+) {
+  const { data, error } = await supabase
+    .from('test_attempts')
+    .insert({
+      user_id: userId || null,
+      anonymous_id: anonymousId || null,
+      test_type: testType,
+      responses: responses || null,
+      analysis: analysis || null,
+      word_count: wordCount || null,
+      email: email || null
+    })
+    .select('id')
+    .single()
+
+  if (error) throw error
+  return data?.id as string | undefined
+}
+
+export async function updateTestAttempt(
+  id: string,
+  responses?: { word: string; response: string }[],
+  analysis?: object,
+  wordCount?: number
+) {
+  if (!id) {
+    console.log('[updateTestAttempt] Missing attempt id')
+    throw new Error('Missing attempt id')
+  }
+
+  const payload = {
+    responses: responses || null,
+    analysis: analysis || null,
+    word_count: wordCount || null
+  }
+
+  console.log('[updateTestAttempt] Updating attempt', { id, wordCount })
+
+  const { data, error } = await supabase
+    .from('test_attempts')
+    .update(payload)
+    .eq('id', id)
+    .select('*')
+    .single()
+
+  if (error) {
+    console.log('[updateTestAttempt] Update failed', { id, error })
+    throw error
+  }
+
+  console.log('[updateTestAttempt] Update success', { id })
+  return data
 }
