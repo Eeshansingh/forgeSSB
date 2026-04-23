@@ -6,6 +6,7 @@ import { SRT_SITUATIONS } from "@/lib/srt-data";
 import { getTestAttempts, recordTestAttempt, signInWithGoogle, supabase, updateTestAttempt } from "@/lib/supabase";
 import { ChevronDown, Download, RotateCcw } from "lucide-react";
 import { AnalysisLoading } from "@/components/AnalysisLoading";
+import { LeaderboardTeaser } from "@/components/LeaderboardTeaser";
 
 const ADMIN_EMAILS = ["s.eeshan3333@gmail.com", "ridhimanegiflip@gmail.com"];
 
@@ -704,6 +705,7 @@ function PracticePage() {
           Attempt Again
         </Link>
       </div>
+      <LeaderboardTeaser testType="srt" userScore={overall} userRating={overallRating.label} practice />
       {showFirstAttemptPrompt && !user && (
         <div className="mt-10 border border-gold/40 bg-surface-1/60 p-6 sm:p-7">
           <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-gold">Recommendation</p>

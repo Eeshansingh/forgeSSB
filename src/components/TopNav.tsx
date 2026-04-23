@@ -37,21 +37,30 @@ export function TopNav() {
             </span>
           </Link>
 
-          <nav className="flex items-center gap-1 text-sm">
+          <nav className="flex items-center gap-0.5 text-sm sm:gap-1">
             <Link
               to="/tests"
-              className="px-4 py-2 font-medium text-muted-foreground transition-colors hover:text-foreground"
+              className="px-2 py-2 font-medium text-muted-foreground transition-colors hover:text-foreground sm:px-4"
               activeProps={{ className: "text-foreground" }}
             >
               Tests
             </Link>
+            <Link
+              to="/leaderboard/wat"
+              className="px-2 py-2 font-medium text-muted-foreground transition-colors hover:text-foreground sm:px-4"
+              activeProps={{ className: "text-foreground" }}
+            >
+              <span className="hidden sm:inline">Leaderboard</span>
+              <span className="sm:hidden">Ranks</span>
+            </Link>
             <button
               type="button"
               onClick={() => setJourneyOpen(true)}
-              className="ml-2 inline-flex items-center gap-2 border border-border px-4 py-2 font-medium text-foreground/90 transition-all hover:border-gold hover:text-gold"
+              className="ml-1 inline-flex items-center gap-1.5 border border-border px-2 py-2 font-medium text-foreground/90 transition-all hover:border-gold hover:text-gold sm:ml-2 sm:gap-2 sm:px-4"
             >
               <span className="h-1.5 w-1.5 bg-gold pulse-gold" />
-              My Journey
+              <span className="hidden sm:inline">My Journey</span>
+              <span className="sm:hidden">Journey</span>
             </button>
           </nav>
         </div>

@@ -2,9 +2,10 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { OLQS, ratingFromScore } from "@/lib/wat-data";
 import { getSRTFullAnalysis } from "@/lib/srt-anthropic";
-import { supabase, updateTestAttempt } from "@/lib/supabase";
+import { supabase, updateTestAttempt, formatDisplayName } from "@/lib/supabase";
 import { ChevronDown, Download, RotateCcw } from "lucide-react";
 import { AnalysisLoading } from "@/components/AnalysisLoading";
+import { LeaderboardTeaser } from "@/components/LeaderboardTeaser";
 
 export const Route = createFileRoute("/tests/srt/full/results")({
   head: () => ({
@@ -50,18 +51,27 @@ function ResultsPage() {
         setResponses(parsed);
 
         const { data } = await supabase.auth.getUser();
-        setUser((data.user as AuthUser) ?? null);
+        const authUser = data.user ?? null;
+        setUser((authUser as AuthUser) ?? null);
 
         const dataAnalysis = await getSRTFullAnalysis(parsed);
         setAnalysis(dataAnalysis);
 
         const attemptId = sessionStorage.getItem("forgessb_current_attempt_id");
         if (attemptId) {
+          const olqVals = Object.values(dataAnalysis.olq_scores as Record<string, number>);
+          const compositeScore = olqVals.length
+            ? Math.round(olqVals.reduce((a, b) => a + b, 0) / olqVals.length)
+            : undefined;
+          const fullName = authUser?.user_metadata?.full_name as string | undefined;
+          const displayName = fullName ? formatDisplayName(fullName) : undefined;
           await updateTestAttempt(
             attemptId,
             parsed as unknown as { word: string; response: string }[],
             dataAnalysis as unknown as object,
-            parsed.length
+            parsed.length,
+            compositeScore,
+            displayName
           );
         }
       } catch (err) {
@@ -274,6 +284,8 @@ function ResultsPage() {
           Attempt Again
         </Link>
       </div>
+
+      <LeaderboardTeaser testType="srt" userScore={overall} userRating={overallRating.label} />
     </section>
   );
 }

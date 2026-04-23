@@ -6,6 +6,14 @@ import type { User } from "@supabase/supabase-js";
 
 type OlqScores = Record<string, number>;
 
+type ModuleRanking = {
+  label: string;
+  testType: string;
+  rank: number | null;
+  total: number;
+  aheadOf: number | null;
+};
+
 type TestAttempt = {
   id: string;
   user_id: string;
@@ -45,19 +53,67 @@ export function MyJourney({ open, onClose, user }: MyJourneyProps) {
   const [attempts, setAttempts] = useState<TestAttempt[]>([]);
   const [loading, setLoading] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [rankings, setRankings] = useState<ModuleRanking[]>([]);
 
   useEffect(() => {
     if (!open || !user) return;
     setLoading(true);
-    supabase
-      .from("test_attempts")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false })
-      .then(({ data }) => {
-        setAttempts((data as TestAttempt[]) ?? []);
-        setLoading(false);
-      });
+
+    const MODULES = [
+      { label: "WAT", testType: "wat_full" },
+      { label: "SRT", testType: "srt_full" },
+      { label: "TAT", testType: "tat_full" },
+    ];
+
+    const fetchRankings = async () => {
+      const results = await Promise.all(
+        MODULES.map(async ({ label, testType }) => {
+          const { data: best } = await supabase
+            .from("test_attempts")
+            .select("score")
+            .eq("test_type", testType)
+            .eq("user_id", user.id)
+            .not("score", "is", null)
+            .order("score", { ascending: false })
+            .limit(1);
+
+          const userScore = best?.[0]?.score;
+          if (userScore == null) return { label, testType, rank: null, total: 0, aheadOf: null };
+
+          const [{ count: better }, { count: total }] = await Promise.all([
+            supabase
+              .from("test_attempts")
+              .select("*", { count: "exact", head: true })
+              .eq("test_type", testType)
+              .not("user_id", "is", null)
+              .not("score", "is", null)
+              .gt("score", userScore),
+            supabase
+              .from("test_attempts")
+              .select("*", { count: "exact", head: true })
+              .eq("test_type", testType)
+              .not("user_id", "is", null)
+              .not("score", "is", null),
+          ]);
+
+          const t = total ?? 0;
+          const rank = (better ?? 0) + 1;
+          const aheadOf = t > 0 ? Math.round(((t - rank) / t) * 100) : null;
+          return { label, testType, rank, total: t, aheadOf };
+        })
+      );
+      setRankings(results);
+    };
+
+    Promise.all([
+      supabase
+        .from("test_attempts")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .then(({ data }) => setAttempts((data as TestAttempt[]) ?? [])),
+      fetchRankings().catch(() => {}),
+    ]).finally(() => setLoading(false));
   }, [open, user]);
 
   const userName =
@@ -115,6 +171,60 @@ export function MyJourney({ open, onClose, user }: MyJourneyProps) {
                 <p className="font-serif text-lg text-foreground">{userName}</p>
                 <p className="mt-0.5 font-mono text-xs text-muted-foreground">{user.email}</p>
               </div>
+
+              {/* Rankings */}
+              {rankings.length > 0 && (
+                <div className="mb-6">
+                  <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.3em] text-gold">
+                    Your Rankings
+                  </p>
+                  <div className="space-y-px bg-border/60">
+                    {rankings.map((r) => (
+                      <div key={r.label} className="bg-surface-1 px-4 py-[14px]">
+                        {r.rank === null ? (
+                          <div className="flex items-center justify-between">
+                            <span className="font-mono text-[11px] uppercase tracking-[0.15em] text-muted-foreground/60">
+                              {r.label}
+                            </span>
+                            <span className="font-mono text-[10px] text-muted-foreground/40">
+                              No attempts
+                            </span>
+                          </div>
+                        ) : (
+                          <>
+                            <div className="flex items-center justify-between">
+                              <span className="font-mono text-[11px] uppercase tracking-[0.15em] text-gold">
+                                {r.label}
+                              </span>
+                              <div className="flex items-center gap-3">
+                                <span className="font-mono text-[11px] tabular-nums text-muted-foreground">
+                                  #{r.rank} of {r.total.toLocaleString()}
+                                </span>
+                                {r.aheadOf !== null && (
+                                  <span className="font-mono text-[11px] text-gold">
+                                    Top {Math.max(1, 100 - r.aheadOf)}%
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            {r.aheadOf !== null && (
+                              <div className="mt-2 h-0.5 w-full bg-border/60">
+                                <div
+                                  className="h-full bg-gold transition-all duration-500"
+                                  style={{ width: `${r.aheadOf}%` }}
+                                />
+                              </div>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  <p className="mt-2 text-xs text-muted-foreground/60">
+                    Full simulations only. Practice rounds do not count toward rankings.
+                  </p>
+                </div>
+              )}
 
               {loading ? (
                 <div className="flex items-center gap-3 py-8">

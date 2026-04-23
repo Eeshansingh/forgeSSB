@@ -2,8 +2,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { OLQS, ratingFromScore } from "@/lib/wat-data";
 import { getFullTestAnalysis } from "@/lib/anthropic";
-import { supabase, updateTestAttempt } from "@/lib/supabase";
+import { supabase, updateTestAttempt, formatDisplayName } from "@/lib/supabase";
 import { AnalysisLoading } from "@/components/AnalysisLoading";
+import { LeaderboardTeaser } from "@/components/LeaderboardTeaser";
 import { ChevronDown, Download, RotateCcw } from "lucide-react";
 
 export const Route = createFileRoute("/tests/wat/full/results")({
@@ -62,14 +63,20 @@ function ResultsPage() {
         setAnalysis(dataAnalysis);
         const attemptId = sessionStorage.getItem("forgessb_current_attempt_id");
         if (attemptId) {
-          console.log("[wat_full.results] attempt_id", attemptId);
-          const updated = await updateTestAttempt(
+          const olqVals = Object.values(dataAnalysis.olq_scores as Record<string, number>);
+          const compositeScore = olqVals.length
+            ? Math.round(olqVals.reduce((a, b) => a + b, 0) / olqVals.length)
+            : undefined;
+          const fullName = authUser?.user_metadata?.full_name as string | undefined;
+          const displayName = fullName ? formatDisplayName(fullName) : undefined;
+          await updateTestAttempt(
             attemptId,
             parsed,
             dataAnalysis as unknown as object,
-            parsed.length
+            parsed.length,
+            compositeScore,
+            displayName
           );
-          console.log("[wat_full.results] updateTestAttempt result", updated);
         }
       } catch (err) {
         console.error(err);
@@ -281,6 +288,8 @@ function ResultsPage() {
           Attempt Again
         </Link>
       </div>
+
+      <LeaderboardTeaser testType="wat" userScore={overall} userRating={overallRating.label} />
 
       {showFirstAttemptPrompt && !user && (
         <div className="mt-10 border border-gold/40 bg-surface-1/60 p-6 sm:p-7">

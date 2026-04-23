@@ -5,6 +5,13 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
+// "Arjun Mehta" → "Arjun M."
+export function formatDisplayName(fullName: string): string {
+  const parts = fullName.trim().split(' ').filter(Boolean);
+  if (parts.length === 1) return parts[0];
+  return `${parts[0]} ${parts[parts.length - 1][0].toUpperCase()}.`;
+}
+
 export type User = {
   id: string
   email: string
@@ -80,18 +87,22 @@ export async function updateTestAttempt(
   id: string,
   responses?: { word: string; response: string }[],
   analysis?: object,
-  wordCount?: number
+  wordCount?: number,
+  score?: number,
+  displayName?: string
 ) {
   if (!id) {
     console.log('[updateTestAttempt] Missing attempt id')
     throw new Error('Missing attempt id')
   }
 
-  const payload = {
+  const payload: Record<string, unknown> = {
     responses: responses || null,
     analysis: analysis || null,
-    word_count: wordCount || null
+    word_count: wordCount || null,
   }
+  if (score !== undefined) payload.score = score
+  if (displayName !== undefined) payload.display_name = displayName
 
   console.log('[updateTestAttempt] Updating attempt', { id, wordCount })
 
