@@ -7,7 +7,7 @@ import { getTestAttempts, recordTestAttempt, signInWithGoogle, supabase, updateT
 import { ChevronDown, Download, RotateCcw } from "lucide-react";
 import { AnalysisLoading } from "@/components/AnalysisLoading";
 
-const ADMIN_EMAILS = ["s.eeshan3333@gmail.com"];
+const ADMIN_EMAILS = ["s.eeshan3333@gmail.com", "ridhimanegiflip@gmail.com"];
 
 export const Route = createFileRoute("/tests/srt/practice")({
   head: () => ({
