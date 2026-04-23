@@ -15,11 +15,11 @@ export const Route = createFileRoute("/tests/wat/full/instructions")({
 });
 
 const RULES = [
-  "Sixty stimulus words will be presented in sequence.",
-  "Each word remains on screen for fifteen seconds. The first response that surfaces is what matters.",
-  "Type a complete, sentence-fragment response. One-word answers are not assessed.",
-  "When the countdown reaches zero, the system advances automatically. Unfinished responses are recorded as-is.",
-  "There is no back-button. There is no skip. You commence — you complete.",
+  "60 words will appear one at a time.",
+  "You have 15 seconds per word. Your response is recorded when the timer moves on.",
+  "Write a complete sentence — not a single word or phrase.",
+  "There is no going back to a previous word.",
+  "Your complete OLQ assessment will be ready when you finish.",
 ];
 
 const OLQ_BRIEF = [
@@ -55,8 +55,7 @@ function InstructionsPage() {
         <div className="mt-6 h-px w-20 bg-gold/50" />
 
         <p className="mt-8 text-base leading-relaxed text-foreground/80">
-          You are about to enter the Word Association Test under live conditions. Read
-          the protocol below. When ready, hold the line.
+          A word will appear on screen. You have 15 seconds to write the first complete sentence that comes to mind. Your honest reaction — not the best answer. That is what the Board reads. Do not overthink it.
         </p>
 
         <div className="mt-12">

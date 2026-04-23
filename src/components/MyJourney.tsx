@@ -85,6 +85,7 @@ export function MyJourney({ open, onClose, user }: MyJourneyProps) {
           <div>
             <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-gold">ForgeSSB</p>
             <h2 className="font-serif text-2xl text-foreground">My Journey</h2>
+            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">Every assessment you complete is saved here. Track your OLQ profile as your preparation develops.</p>
           </div>
           <button
             type="button"
@@ -99,12 +100,7 @@ export function MyJourney({ open, onClose, user }: MyJourneyProps) {
           {!user ? (
             <div className="flex flex-col items-center justify-center gap-6 px-8 py-16 text-center">
               <div className="font-serif text-5xl text-gold">★</div>
-              <div>
-                <h3 className="font-serif text-xl text-foreground">Track your progress</h3>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  Sign in to save your test attempts and monitor your OLQ improvement over time.
-                </p>
-              </div>
+              <p className="text-sm text-muted-foreground">Sign in to track your progress across sessions.</p>
               <button
                 type="button"
                 onClick={() => void signInWithGoogle()}
@@ -133,7 +129,7 @@ export function MyJourney({ open, onClose, user }: MyJourneyProps) {
                     No attempts yet
                   </p>
                   <p className="mt-2 text-sm text-muted-foreground/60">
-                    Complete a test to see your results here.
+                    Your assessment history will appear here once you complete a test.
                   </p>
                 </div>
               ) : (

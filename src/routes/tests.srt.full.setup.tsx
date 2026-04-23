@@ -153,10 +153,10 @@ function SetupPage() {
         <div className="absolute inset-0 grid-texture-fine opacity-60" aria-hidden="true" />
         <div className="relative mx-auto max-w-2xl px-6 py-20">
           <div className="border border-gold/40 bg-surface-1/70 p-8 sm:p-10">
-            <p className="font-mono text-[11px] uppercase tracking-[0.35em] text-gold">Access Control</p>
-            <h1 className="mt-4 font-serif text-3xl text-foreground sm:text-4xl">Identity Verification Required</h1>
+            <p className="font-mono text-[11px] uppercase tracking-[0.35em] text-gold">Account Required</p>
+            <h1 className="mt-4 font-serif text-3xl text-foreground sm:text-4xl">Save your progress</h1>
             <p className="mt-6 text-base leading-relaxed text-foreground/85">
-              AI analysis costs money to run. Help us know who you are — sign in with Google for 3 free attempts.
+              Sign in to track your OLQ profile across sessions and pick up where you left off.
             </p>
             <button
               type="button"
@@ -178,14 +178,14 @@ function SetupPage() {
         <div className="absolute inset-0 grid-texture-fine opacity-60" aria-hidden="true" />
         <div className="relative mx-auto max-w-2xl px-6 py-20">
           <div className="border border-gold/40 bg-surface-1/70 p-8 sm:p-10">
-            <p className="font-mono text-[11px] uppercase tracking-[0.35em] text-gold">Allocation Exhausted</p>
-            <h1 className="mt-4 font-serif text-3xl text-foreground sm:text-4xl">You&apos;ve used your 3 free attempts.</h1>
+            <p className="font-mono text-[11px] uppercase tracking-[0.35em] text-gold">Free Assessments Used</p>
+            <h1 className="mt-4 font-serif text-3xl text-foreground sm:text-4xl">You have completed your 3 free assessments.</h1>
             <p className="mt-6 font-mono text-xs uppercase tracking-[0.2em] text-gold/80">
               Registered Account · {displayEmail}
             </p>
             {waitlistJoined ? (
               <p className="mt-6 text-base leading-relaxed text-foreground/85">
-                You&apos;re on the list. We&apos;ll reach out to {displayEmail} when ForgeSSB launches paid plans.
+                You are on the list. We will be in touch at {displayEmail}.
               </p>
             ) : (
               <div className="mt-8">
@@ -195,7 +195,7 @@ function SetupPage() {
                   disabled={waitlistLoading}
                   className="inline-flex items-center justify-center border border-gold bg-gold/10 px-7 py-3.5 font-mono text-xs uppercase tracking-[0.22em] text-gold transition-all hover:bg-gold hover:text-primary-foreground disabled:opacity-60"
                 >
-                  {waitlistLoading ? "Submitting..." : "Notify Me When Pricing Launches"}
+                  {waitlistLoading ? "Submitting..." : "Notify me"}
                 </button>
               </div>
             )}

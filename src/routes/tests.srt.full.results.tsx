@@ -144,7 +144,7 @@ function ResultsPage() {
         </p>
         <h1 className="mt-3 font-serif text-3xl text-foreground sm:text-5xl">SRT Assessment Complete</h1>
         <p className="mt-3 text-base text-muted-foreground">
-          Situation Reaction Test · {responses.length} Responses Analysed
+          Here is what your responses reveal about your OLQ profile.
         </p>
         <div className="mt-8 grid grid-cols-1 gap-px bg-border sm:grid-cols-3">
           <Stat label="Composite OLQ Score" value={`${overall}`} suffix="/ 100" />

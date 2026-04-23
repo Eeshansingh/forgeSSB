@@ -80,10 +80,9 @@ function WatModePage() {
         <p className="font-mono text-[11px] uppercase tracking-[0.35em] text-gold">
           Word Association Test
         </p>
-        <h1 className="mt-3 font-serif text-5xl text-foreground">Select Mode of Engagement</h1>
+        <h1 className="mt-3 font-serif text-5xl text-foreground">Word Association Test</h1>
         <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-          Train freely with instant AI critique, or commit to a full sixty-round
-          simulation under live timer pressure.
+          A word appears. 15 seconds. Your first instinct is what the Board sees.
         </p>
       </div>
 
@@ -92,7 +91,7 @@ function WatModePage() {
           to="/tests/wat/practice"
           abbr="Practice"
           title="Practice Mode"
-          description="Answer all words first, then receive comprehensive AI analysis of your OLQ profile. No per-word feedback — your complete assessment arrives at the end."
+          description="Go through words at your own pace. Get a detailed OLQ breakdown at the end."
           bullets={[
             "Choose 5, 10, 20, 30 or 60 words",
             "Full OLQ assessment on completion",
@@ -105,7 +104,7 @@ function WatModePage() {
           to="/tests/wat/full/instructions"
           abbr="Simulation"
           title="Full Simulation"
-          description="Sixty words. Fifteen seconds each. Comprehensive OLQ analysis on completion. Conditions modelled on the real SSB."
+          description="60 words. 15 seconds each. No going back. Your complete assessment at the end."
           bullets={[
             "60 sequential stimuli",
             "15-second hard timer",

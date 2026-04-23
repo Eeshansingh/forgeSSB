@@ -80,9 +80,9 @@ function SrtModePage() {
         <p className="font-mono text-[11px] uppercase tracking-[0.35em] text-gold">
           Situation Reaction Test
         </p>
-        <h1 className="mt-3 font-serif text-5xl text-foreground">Select Mode of Engagement</h1>
+        <h1 className="mt-3 font-serif text-5xl text-foreground">Situation Reaction Test</h1>
         <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-          60 real-life situations. 30 seconds each. Your reactions reveal your officer potential.
+          60 situations. 30 seconds each. How you react reveals who you are.
         </p>
       </div>
 
@@ -91,7 +91,7 @@ function SrtModePage() {
           to="/tests/srt/practice"
           abbr="Practice"
           title="Practice Mode"
-          description="Answer all situations first, then receive comprehensive AI analysis of your OLQ profile. No per-situation feedback — your complete assessment arrives at the end."
+          description="Work through situations at your own pace. Get a full OLQ assessment at the end."
           bullets={[
             "Choose 5, 10, 20, 30 or 60 situations",
             "Full OLQ assessment on completion",
@@ -104,7 +104,7 @@ function SrtModePage() {
           to="/tests/srt/full/instructions"
           abbr="Simulation"
           title="Full Simulation"
-          description="Sixty situations. Thirty seconds each. Comprehensive OLQ analysis on completion. Conditions modelled on the real SSB."
+          description="60 situations. 30 seconds each. Your complete assessment at the end."
           bullets={[
             "60 sequential situations",
             "30-second hard timer",

@@ -15,11 +15,11 @@ export const Route = createFileRoute("/tests/srt/full/instructions")({
 });
 
 const RULES = [
-  "Sixty real-life situations will be presented in sequence.",
-  "Each situation remains on screen for thirty seconds. Write what you WOULD DO — not what you think the ideal answer is. Your first instinct is what counts.",
-  "Write 2-3 lines of action. Begin with what you do first. Be specific and decisive — vague responses score poorly.",
-  "When the countdown reaches zero, the system advances automatically. Unfinished responses are recorded as-is.",
-  "There is no back-button. There is no skip. You commence — you complete.",
+  "60 situations will appear one at a time.",
+  "You have 30 seconds per situation.",
+  "Write what you would actually do — practical, decisive, in your own words.",
+  "There is no going back.",
+  "Your complete OLQ assessment will be ready when you finish.",
 ];
 
 const OLQ_BRIEF = [
@@ -64,8 +64,7 @@ function InstructionsPage() {
         <div className="mt-6 h-px w-20 bg-gold/50" />
 
         <p className="mt-8 text-base leading-relaxed text-foreground/80">
-          You are about to enter the Situation Reaction Test under live conditions. Read
-          the protocol below. When ready, hold the line.
+          A situation will appear. You have 30 seconds. Write what you would do — two to three lines, practical and decisive. The Board wants to see how you think, not what sounds right.
         </p>
 
         <div className="mt-12">

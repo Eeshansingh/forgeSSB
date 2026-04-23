@@ -151,7 +151,7 @@ function ResultsPage() {
         </p>
         <h1 className="mt-3 font-serif text-3xl text-foreground sm:text-5xl">Assessment Complete</h1>
         <p className="mt-3 text-base text-muted-foreground">
-          WAT Full Simulation · {responses.length} Responses Analysed
+          Here is what your responses reveal about your OLQ profile.
         </p>
         <div className="mt-8 grid gap-px bg-border grid-cols-1 sm:grid-cols-3">
           <Stat label="Composite OLQ Score" value={`${overall}`} suffix="/ 100" />
@@ -286,7 +286,7 @@ function ResultsPage() {
         <div className="mt-10 border border-gold/40 bg-surface-1/60 p-6 sm:p-7">
           <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-gold">Recommendation</p>
           <p className="mt-3 font-serif text-xl text-foreground">
-            Save your results and get 3 free attempts — sign in with Google
+            Sign in to save these results and track your progress across sessions.
           </p>
           <div className="mt-5">
             <button

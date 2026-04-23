@@ -50,16 +50,14 @@ function LandingPage() {
             Services Selection Board · Preparation
           </p>
 
-          <h1 className="mt-6 font-serif text-6xl font-semibold leading-[0.95] text-balance sm:text-7xl md:text-8xl">
-            <span className="text-gold">Forge</span>
-            <span className="text-foreground">SSB</span>
+          <h1 className="mt-6 font-serif text-5xl font-semibold leading-[1.05] text-balance sm:text-6xl md:text-7xl">
+            Walk into SSB knowing yourself.
           </h1>
 
           <div className="mt-8 h-px w-24 bg-gold/50" />
 
           <p className="mt-8 max-w-xl text-balance text-base leading-relaxed text-foreground/80 sm:text-lg">
-            AI-powered preparation for those who serve. Train your psyche under live
-            assessment conditions and earn the bars.
+            From psychological tests to GTO tasks — ForgeSSB helps you understand how you perform under SSB conditions and what the Board sees in you.
           </p>
 
           <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row">
@@ -67,20 +65,20 @@ function LandingPage() {
               to="/tests"
               className="inline-flex items-center gap-2 border border-gold bg-gold/5 px-7 py-3.5 text-sm font-medium uppercase tracking-[0.18em] text-gold transition-all hover:bg-gold hover:text-primary-foreground"
             >
-              Commence Training →
+              Begin Preparation →
             </Link>
             <Link
               to="/tests"
               className="inline-flex items-center gap-2 border border-border px-7 py-3.5 text-sm font-medium uppercase tracking-[0.18em] text-foreground/80 transition-all hover:border-foreground/40 hover:text-foreground"
             >
-              View All Modules
+              See All Modules
             </Link>
           </div>
 
           <div className="mt-16 flex items-center gap-8 font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
-            <span>· Officer-grade analysis</span>
-            <span className="hidden sm:inline">· Real SSB conditions</span>
-            <span className="hidden md:inline">· OLQ scoring</span>
+            <span>· Real SSB Conditions</span>
+            <span className="hidden sm:inline">· OLQ Pattern Analysis</span>
+            <span className="hidden md:inline">· Track Your Progress</span>
           </div>
         </div>
       </section>
@@ -104,42 +102,42 @@ function LandingPage() {
           <ModuleCard
             name="Word Association Test"
             abbreviation="WAT"
-            description="60 stimulus words. 15 seconds each. Reveal the spontaneous mind."
+            description="60 words, 15 seconds each. The Board reads your first instinct."
             icon={<Brain className="h-5 w-5" />}
             to="/tests/wat"
           />
           <ModuleCard
             name="Thematic Apperception Test"
             abbreviation="TAT"
-            description="Construct narratives from ambiguous imagery. Assess imagination and intent."
+            description="Tell a story. Reveal your thinking."
             icon={<ImageIcon className="h-5 w-5" />}
             locked
           />
           <ModuleCard
             name="Situation Reaction Test"
             abbreviation="SRT"
-            description="60 real-world scenarios. Demonstrate judgement under pressure."
+            description="60 situations, 30 seconds each. How you act defines your profile."
             icon={<AlertTriangle className="h-5 w-5" />}
             to="/tests/srt"
           />
           <ModuleCard
             name="Group Testing Tasks"
             abbreviation="GTO"
-            description="Group discussion, planning exercise and progressive group tasks."
+            description="Lead, cooperate, solve. Your officer potential in action."
             icon={<Users className="h-5 w-5" />}
             locked
           />
           <ModuleCard
             name="Personal Interview"
             abbreviation="IO"
-            description="One-on-one with the Interviewing Officer. AI-simulated questioning."
+            description="Who you are, why you want this, what you're made of."
             icon={<MessageSquare className="h-5 w-5" />}
             locked
           />
           <ModuleCard
             name="Self Description"
             abbreviation="SD"
-            description="Five lenses on character: parents, teachers, friends, peers, self."
+            description="How you see yourself matters as much as how others see you."
             icon={<ScrollText className="h-5 w-5" />}
             locked
           />
