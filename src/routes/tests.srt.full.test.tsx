@@ -1,39 +1,39 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { WAT_WORDS } from "@/lib/wat-data";
+import { SRT_SITUATIONS } from "@/lib/srt-data";
 
-export const Route = createFileRoute("/tests/wat/full/test")({
+export const Route = createFileRoute("/tests/srt/full/test")({
   head: () => ({
     meta: [
-      { title: "WAT — Live Assessment — ForgeSSB" },
-      { name: "description", content: "Word Association Test — live assessment in progress." },
+      { title: "SRT — Live Assessment — ForgeSSB" },
+      { name: "description", content: "Situation Reaction Test — live assessment in progress." },
       { name: "robots", content: "noindex" },
     ],
   }),
-  component: WatTestScreen,
+  component: SrtTestScreen,
 });
 
-const SECONDS_PER_WORD = 15;
+const SECONDS_PER_WORD = 30;
 
-function WatTestScreen() {
+function SrtTestScreen() {
   const navigate = useNavigate();
-  const stored = sessionStorage.getItem("wat_word_count");
-  const TOTAL_WORDS = stored ? Math.min(parseInt(stored), WAT_WORDS.length) : 60;
-  const words = useMemo(() => {
-	  const shuffled = [...WAT_WORDS].sort(() => Math.random() - 0.5);
-	  return shuffled.slice(0, TOTAL_WORDS);
+  const stored = sessionStorage.getItem("srt_word_count");
+  const TOTAL_WORDS = stored ? Math.min(parseInt(stored), SRT_SITUATIONS.length) : 60;
+  const situations = useMemo(() => {
+    const shuffled = [...SRT_SITUATIONS].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, TOTAL_WORDS);
   }, [TOTAL_WORDS]);
   const [index, setIndex] = useState(0);
   const [response, setResponse] = useState("");
   const [timeLeft, setTimeLeft] = useState(SECONDS_PER_WORD);
-  const [allResponses, setAllResponses] = useState<{ word: string; response: string }[]>([]);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [allResponses, setAllResponses] = useState<{ situation: string; response: string }[]>([]);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const word = words[index];
+  const situation = situations[index];
   const isLast = index >= TOTAL_WORDS - 1;
 
   useEffect(() => {
-    inputRef.current?.focus();
+    textareaRef.current?.focus();
   }, [index]);
 
   useEffect(() => {
@@ -57,11 +57,11 @@ function WatTestScreen() {
   }, [timeLeft]);
 
   function advance() {
-    const updated = [...allResponses, { word, response }];
+    const updated = [...allResponses, { situation, response }];
     setAllResponses(updated);
     if (isLast) {
-      sessionStorage.setItem("wat_responses", JSON.stringify(updated));
-      navigate({ to: "/tests/wat/full/results" });
+      sessionStorage.setItem("srt_responses", JSON.stringify(updated));
+      navigate({ to: "/tests/srt/full/results" });
       return;
     }
     setIndex((i) => i + 1);
@@ -71,6 +71,13 @@ function WatTestScreen() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     advance();
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      advance();
+    }
   }
 
   function endSession() {
@@ -83,10 +90,10 @@ function WatTestScreen() {
   const timerPct = (timeLeft / SECONDS_PER_WORD) * 100;
 
   const timerTone =
-    timeLeft <= 4 ? "text-danger" : timeLeft <= 8 ? "text-amber" : "text-gold";
+    timeLeft <= 5 ? "text-danger" : timeLeft <= 10 ? "text-amber" : "text-gold";
 
   const timerBarColour =
-    timeLeft <= 4 ? "bg-danger" : timeLeft <= 8 ? "bg-amber" : "bg-gold";
+    timeLeft <= 5 ? "bg-danger" : timeLeft <= 10 ? "bg-amber" : "bg-gold";
 
   const mins = Math.floor(timeLeft / 60);
   const secs = timeLeft % 60;
@@ -98,7 +105,7 @@ function WatTestScreen() {
       <header className="border-b border-border/50 px-4 py-4 sm:px-8 sm:py-5">
         <div className="mx-auto flex max-w-5xl items-center gap-4 sm:gap-6">
           <div className="font-mono text-xs uppercase tracking-[0.25em] text-gold">
-            WAT · Live
+            SRT · Live
           </div>
           <div className="flex-1">
             <div className="mb-1.5 flex items-center justify-between font-mono text-xs">
@@ -125,42 +132,39 @@ function WatTestScreen() {
       </header>
 
       {/* CENTRE */}
-      <div className="relative flex flex-1 items-center justify-center overflow-hidden px-4 sm:px-6">
+      <div className="relative flex flex-1 items-start justify-center overflow-y-auto px-4 py-6 sm:items-center sm:px-6">
         <div className="absolute inset-0 grid-texture opacity-40" aria-hidden="true" />
-        <div className="relative w-full max-w-3xl">
-          <p className="text-center font-mono text-[10px] uppercase tracking-[0.4em] text-gold/70">
-            Stimulus
+        <div className="relative w-full max-w-2xl">
+          <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-gold/70">
+            Situation
           </p>
-          <h1
+          <p
             key={index}
-            className="animate-word-in mt-4 text-center font-serif font-semibold uppercase leading-none text-foreground sm:mt-6"
-            style={{ fontSize: "clamp(2.5rem, 11vw, 7rem)", letterSpacing: "0.05em" }}
+            className="animate-word-in mt-4 font-serif text-xl leading-relaxed text-foreground"
           >
-            {word}
-          </h1>
-          <form onSubmit={handleSubmit} className="mt-8 sm:mt-12">
-            <input
-              ref={inputRef}
-              type="text"
+            {situation}
+          </p>
+          <form onSubmit={handleSubmit} className="mt-6 sm:mt-8">
+            <textarea
+              ref={textareaRef}
               value={response}
               onChange={(e) => setResponse(e.target.value)}
-              placeholder="Your response..."
+              onKeyDown={handleKeyDown}
+              placeholder="Describe what you would do..."
+              rows={3}
               autoComplete="off"
-              className="w-full border-b-2 border-border bg-surface-1/40 px-4 py-3 text-center font-serif text-xl text-foreground placeholder:font-sans placeholder:text-sm placeholder:uppercase placeholder:tracking-[0.2em] placeholder:text-muted-foreground/70 focus:border-gold focus:bg-surface-1 focus:outline-none sm:px-5 sm:py-4 sm:text-2xl"
+              className="w-full resize-none border border-border bg-surface-1/40 px-4 py-3 font-serif text-base text-foreground placeholder:font-sans placeholder:text-sm placeholder:uppercase placeholder:tracking-[0.2em] placeholder:text-muted-foreground/70 focus:border-gold focus:bg-surface-1 focus:outline-none sm:px-5 sm:py-4 sm:text-lg"
             />
-            <div className="mt-4 flex items-center justify-center gap-4">
-              <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground hidden sm:block">
-                Press Enter to submit · Auto-advance on timer
+            <div className="mt-3 flex items-center justify-between gap-4">
+              <p className="hidden font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground sm:block">
+                Enter to submit · Shift+Enter for new line · Auto-advance on timer
               </p>
               <button
                 type="submit"
-                className="sm:hidden border border-gold/60 bg-gold/10 px-8 py-3 font-mono text-xs uppercase tracking-[0.2em] text-gold active:bg-gold/20"
+                className="border border-gold/60 bg-gold/10 px-8 py-2.5 font-mono text-xs uppercase tracking-[0.2em] text-gold transition-colors hover:bg-gold/20 active:bg-gold/30 sm:ml-auto"
               >
                 Submit →
               </button>
-              <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground sm:hidden">
-                Auto-advances on timer
-              </p>
             </div>
           </form>
         </div>

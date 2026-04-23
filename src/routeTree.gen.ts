@@ -13,11 +13,17 @@ import { Route as TestsRouteImport } from './routes/tests'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TestsIndexRouteImport } from './routes/tests.index'
 import { Route as TestsWatIndexRouteImport } from './routes/tests.wat.index'
+import { Route as TestsSrtIndexRouteImport } from './routes/tests.srt.index'
 import { Route as TestsWatPracticeRouteImport } from './routes/tests.wat.practice'
+import { Route as TestsSrtPracticeRouteImport } from './routes/tests.srt.practice'
 import { Route as TestsWatFullTestRouteImport } from './routes/tests.wat.full.test'
 import { Route as TestsWatFullSetupRouteImport } from './routes/tests.wat.full.setup'
 import { Route as TestsWatFullResultsRouteImport } from './routes/tests.wat.full.results'
 import { Route as TestsWatFullInstructionsRouteImport } from './routes/tests.wat.full.instructions'
+import { Route as TestsSrtFullTestRouteImport } from './routes/tests.srt.full.test'
+import { Route as TestsSrtFullSetupRouteImport } from './routes/tests.srt.full.setup'
+import { Route as TestsSrtFullResultsRouteImport } from './routes/tests.srt.full.results'
+import { Route as TestsSrtFullInstructionsRouteImport } from './routes/tests.srt.full.instructions'
 
 const TestsRoute = TestsRouteImport.update({
   id: '/tests',
@@ -39,9 +45,19 @@ const TestsWatIndexRoute = TestsWatIndexRouteImport.update({
   path: '/wat/',
   getParentRoute: () => TestsRoute,
 } as any)
+const TestsSrtIndexRoute = TestsSrtIndexRouteImport.update({
+  id: '/srt/',
+  path: '/srt/',
+  getParentRoute: () => TestsRoute,
+} as any)
 const TestsWatPracticeRoute = TestsWatPracticeRouteImport.update({
   id: '/wat/practice',
   path: '/wat/practice',
+  getParentRoute: () => TestsRoute,
+} as any)
+const TestsSrtPracticeRoute = TestsSrtPracticeRouteImport.update({
+  id: '/srt/practice',
+  path: '/srt/practice',
   getParentRoute: () => TestsRoute,
 } as any)
 const TestsWatFullTestRoute = TestsWatFullTestRouteImport.update({
@@ -65,13 +81,40 @@ const TestsWatFullInstructionsRoute =
     path: '/wat/full/instructions',
     getParentRoute: () => TestsRoute,
   } as any)
+const TestsSrtFullTestRoute = TestsSrtFullTestRouteImport.update({
+  id: '/srt/full/test',
+  path: '/srt/full/test',
+  getParentRoute: () => TestsRoute,
+} as any)
+const TestsSrtFullSetupRoute = TestsSrtFullSetupRouteImport.update({
+  id: '/srt/full/setup',
+  path: '/srt/full/setup',
+  getParentRoute: () => TestsRoute,
+} as any)
+const TestsSrtFullResultsRoute = TestsSrtFullResultsRouteImport.update({
+  id: '/srt/full/results',
+  path: '/srt/full/results',
+  getParentRoute: () => TestsRoute,
+} as any)
+const TestsSrtFullInstructionsRoute =
+  TestsSrtFullInstructionsRouteImport.update({
+    id: '/srt/full/instructions',
+    path: '/srt/full/instructions',
+    getParentRoute: () => TestsRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/tests': typeof TestsRouteWithChildren
   '/tests/': typeof TestsIndexRoute
+  '/tests/srt/practice': typeof TestsSrtPracticeRoute
   '/tests/wat/practice': typeof TestsWatPracticeRoute
+  '/tests/srt/': typeof TestsSrtIndexRoute
   '/tests/wat/': typeof TestsWatIndexRoute
+  '/tests/srt/full/instructions': typeof TestsSrtFullInstructionsRoute
+  '/tests/srt/full/results': typeof TestsSrtFullResultsRoute
+  '/tests/srt/full/setup': typeof TestsSrtFullSetupRoute
+  '/tests/srt/full/test': typeof TestsSrtFullTestRoute
   '/tests/wat/full/instructions': typeof TestsWatFullInstructionsRoute
   '/tests/wat/full/results': typeof TestsWatFullResultsRoute
   '/tests/wat/full/setup': typeof TestsWatFullSetupRoute
@@ -80,8 +123,14 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/tests': typeof TestsIndexRoute
+  '/tests/srt/practice': typeof TestsSrtPracticeRoute
   '/tests/wat/practice': typeof TestsWatPracticeRoute
+  '/tests/srt': typeof TestsSrtIndexRoute
   '/tests/wat': typeof TestsWatIndexRoute
+  '/tests/srt/full/instructions': typeof TestsSrtFullInstructionsRoute
+  '/tests/srt/full/results': typeof TestsSrtFullResultsRoute
+  '/tests/srt/full/setup': typeof TestsSrtFullSetupRoute
+  '/tests/srt/full/test': typeof TestsSrtFullTestRoute
   '/tests/wat/full/instructions': typeof TestsWatFullInstructionsRoute
   '/tests/wat/full/results': typeof TestsWatFullResultsRoute
   '/tests/wat/full/setup': typeof TestsWatFullSetupRoute
@@ -92,8 +141,14 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/tests': typeof TestsRouteWithChildren
   '/tests/': typeof TestsIndexRoute
+  '/tests/srt/practice': typeof TestsSrtPracticeRoute
   '/tests/wat/practice': typeof TestsWatPracticeRoute
+  '/tests/srt/': typeof TestsSrtIndexRoute
   '/tests/wat/': typeof TestsWatIndexRoute
+  '/tests/srt/full/instructions': typeof TestsSrtFullInstructionsRoute
+  '/tests/srt/full/results': typeof TestsSrtFullResultsRoute
+  '/tests/srt/full/setup': typeof TestsSrtFullSetupRoute
+  '/tests/srt/full/test': typeof TestsSrtFullTestRoute
   '/tests/wat/full/instructions': typeof TestsWatFullInstructionsRoute
   '/tests/wat/full/results': typeof TestsWatFullResultsRoute
   '/tests/wat/full/setup': typeof TestsWatFullSetupRoute
@@ -105,8 +160,14 @@ export interface FileRouteTypes {
     | '/'
     | '/tests'
     | '/tests/'
+    | '/tests/srt/practice'
     | '/tests/wat/practice'
+    | '/tests/srt/'
     | '/tests/wat/'
+    | '/tests/srt/full/instructions'
+    | '/tests/srt/full/results'
+    | '/tests/srt/full/setup'
+    | '/tests/srt/full/test'
     | '/tests/wat/full/instructions'
     | '/tests/wat/full/results'
     | '/tests/wat/full/setup'
@@ -115,8 +176,14 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/tests'
+    | '/tests/srt/practice'
     | '/tests/wat/practice'
+    | '/tests/srt'
     | '/tests/wat'
+    | '/tests/srt/full/instructions'
+    | '/tests/srt/full/results'
+    | '/tests/srt/full/setup'
+    | '/tests/srt/full/test'
     | '/tests/wat/full/instructions'
     | '/tests/wat/full/results'
     | '/tests/wat/full/setup'
@@ -126,8 +193,14 @@ export interface FileRouteTypes {
     | '/'
     | '/tests'
     | '/tests/'
+    | '/tests/srt/practice'
     | '/tests/wat/practice'
+    | '/tests/srt/'
     | '/tests/wat/'
+    | '/tests/srt/full/instructions'
+    | '/tests/srt/full/results'
+    | '/tests/srt/full/setup'
+    | '/tests/srt/full/test'
     | '/tests/wat/full/instructions'
     | '/tests/wat/full/results'
     | '/tests/wat/full/setup'
@@ -169,11 +242,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TestsWatIndexRouteImport
       parentRoute: typeof TestsRoute
     }
+    '/tests/srt/': {
+      id: '/tests/srt/'
+      path: '/srt'
+      fullPath: '/tests/srt/'
+      preLoaderRoute: typeof TestsSrtIndexRouteImport
+      parentRoute: typeof TestsRoute
+    }
     '/tests/wat/practice': {
       id: '/tests/wat/practice'
       path: '/wat/practice'
       fullPath: '/tests/wat/practice'
       preLoaderRoute: typeof TestsWatPracticeRouteImport
+      parentRoute: typeof TestsRoute
+    }
+    '/tests/srt/practice': {
+      id: '/tests/srt/practice'
+      path: '/srt/practice'
+      fullPath: '/tests/srt/practice'
+      preLoaderRoute: typeof TestsSrtPracticeRouteImport
       parentRoute: typeof TestsRoute
     }
     '/tests/wat/full/test': {
@@ -204,13 +291,47 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TestsWatFullInstructionsRouteImport
       parentRoute: typeof TestsRoute
     }
+    '/tests/srt/full/test': {
+      id: '/tests/srt/full/test'
+      path: '/srt/full/test'
+      fullPath: '/tests/srt/full/test'
+      preLoaderRoute: typeof TestsSrtFullTestRouteImport
+      parentRoute: typeof TestsRoute
+    }
+    '/tests/srt/full/setup': {
+      id: '/tests/srt/full/setup'
+      path: '/srt/full/setup'
+      fullPath: '/tests/srt/full/setup'
+      preLoaderRoute: typeof TestsSrtFullSetupRouteImport
+      parentRoute: typeof TestsRoute
+    }
+    '/tests/srt/full/results': {
+      id: '/tests/srt/full/results'
+      path: '/srt/full/results'
+      fullPath: '/tests/srt/full/results'
+      preLoaderRoute: typeof TestsSrtFullResultsRouteImport
+      parentRoute: typeof TestsRoute
+    }
+    '/tests/srt/full/instructions': {
+      id: '/tests/srt/full/instructions'
+      path: '/srt/full/instructions'
+      fullPath: '/tests/srt/full/instructions'
+      preLoaderRoute: typeof TestsSrtFullInstructionsRouteImport
+      parentRoute: typeof TestsRoute
+    }
   }
 }
 
 interface TestsRouteChildren {
   TestsIndexRoute: typeof TestsIndexRoute
+  TestsSrtPracticeRoute: typeof TestsSrtPracticeRoute
   TestsWatPracticeRoute: typeof TestsWatPracticeRoute
+  TestsSrtIndexRoute: typeof TestsSrtIndexRoute
   TestsWatIndexRoute: typeof TestsWatIndexRoute
+  TestsSrtFullInstructionsRoute: typeof TestsSrtFullInstructionsRoute
+  TestsSrtFullResultsRoute: typeof TestsSrtFullResultsRoute
+  TestsSrtFullSetupRoute: typeof TestsSrtFullSetupRoute
+  TestsSrtFullTestRoute: typeof TestsSrtFullTestRoute
   TestsWatFullInstructionsRoute: typeof TestsWatFullInstructionsRoute
   TestsWatFullResultsRoute: typeof TestsWatFullResultsRoute
   TestsWatFullSetupRoute: typeof TestsWatFullSetupRoute
@@ -219,8 +340,14 @@ interface TestsRouteChildren {
 
 const TestsRouteChildren: TestsRouteChildren = {
   TestsIndexRoute: TestsIndexRoute,
+  TestsSrtPracticeRoute: TestsSrtPracticeRoute,
   TestsWatPracticeRoute: TestsWatPracticeRoute,
+  TestsSrtIndexRoute: TestsSrtIndexRoute,
   TestsWatIndexRoute: TestsWatIndexRoute,
+  TestsSrtFullInstructionsRoute: TestsSrtFullInstructionsRoute,
+  TestsSrtFullResultsRoute: TestsSrtFullResultsRoute,
+  TestsSrtFullSetupRoute: TestsSrtFullSetupRoute,
+  TestsSrtFullTestRoute: TestsSrtFullTestRoute,
   TestsWatFullInstructionsRoute: TestsWatFullInstructionsRoute,
   TestsWatFullResultsRoute: TestsWatFullResultsRoute,
   TestsWatFullSetupRoute: TestsWatFullSetupRoute,

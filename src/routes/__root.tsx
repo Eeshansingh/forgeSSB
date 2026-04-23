@@ -46,7 +46,9 @@ function RootComponent() {
   const [user, setUser] = useState<unknown>(null);
   const isTestActive =
     location.pathname.startsWith("/tests/wat/full/test") ||
-    location.pathname.startsWith("/tests/wat/practice");
+    location.pathname.startsWith("/tests/wat/practice") ||
+    location.pathname.startsWith("/tests/srt/full/test") ||
+    location.pathname.startsWith("/tests/srt/practice");
 
   useEffect(() => {
     let mounted = true;

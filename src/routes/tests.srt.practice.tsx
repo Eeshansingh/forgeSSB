@@ -1,18 +1,19 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { getFullTestAnalysis } from "@/lib/anthropic";
-import { OLQS, WAT_WORDS, ratingFromScore } from "@/lib/wat-data";
+import { getSRTFullAnalysis } from "@/lib/srt-anthropic";
+import { OLQS, ratingFromScore } from "@/lib/wat-data";
+import { SRT_SITUATIONS } from "@/lib/srt-data";
 import { getTestAttempts, recordTestAttempt, signInWithGoogle, supabase, updateTestAttempt } from "@/lib/supabase";
-import { AnalysisLoading } from "@/components/AnalysisLoading";
 import { ChevronDown, Download, RotateCcw } from "lucide-react";
+import { AnalysisLoading } from "@/components/AnalysisLoading";
 
 const ADMIN_EMAILS = ["s.eeshan3333@gmail.com"];
 
-export const Route = createFileRoute("/tests/wat/practice")({
+export const Route = createFileRoute("/tests/srt/practice")({
   head: () => ({
     meta: [
-      { title: "WAT Practice Mode — ForgeSSB" },
-      { name: "description", content: "Practice the Word Association Test and receive full AI assessment." },
+      { title: "SRT Practice Mode — ForgeSSB" },
+      { name: "description", content: "Practice the Situation Reaction Test and receive full AI assessment." },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -20,7 +21,7 @@ export const Route = createFileRoute("/tests/wat/practice")({
 });
 
 const PRACTICE_COUNTS = [5, 10, 20, 30, 60] as const;
-const SECONDS_PER_WORD = 15;
+const SECONDS_PER_WORD = 30;
 const ATTEMPT_COUNT_KEY = "forgessb_attempt_count";
 const ANON_ID_KEY = "forgessb_anonymous_id";
 
@@ -32,7 +33,7 @@ type Analysis = {
   assessor_note: string;
 };
 
-type WatResponse = { word: string; response: string };
+type SrtResponse = { situation: string; response: string };
 type AuthUser = { id: string; email?: string | null } | null;
 type AccessState = "checking" | "allowed" | "login_required" | "attempt_limit";
 type Phase = "setup" | "test" | "results";
@@ -60,21 +61,21 @@ function PracticePage() {
 
   const [wordCount, setWordCount] = useState<(typeof PRACTICE_COUNTS)[number]>(10);
   const [mode, setMode] = useState<"timed" | "untimed">("timed");
-  const [words, setWords] = useState<string[]>([]);
+  const [situations, setSituations] = useState<string[]>([]);
   const [index, setIndex] = useState(0);
   const [response, setResponse] = useState("");
   const [timeLeft, setTimeLeft] = useState(SECONDS_PER_WORD);
-  const [allResponses, setAllResponses] = useState<WatResponse[]>([]);
+  const [allResponses, setAllResponses] = useState<SrtResponse[]>([]);
 
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [tableOpen, setTableOpen] = useState(true);
   const [loadingAnalysis, setLoadingAnalysis] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const inputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const TOTAL_WORDS = words.length;
-  const word = words[index];
+  const TOTAL_WORDS = situations.length;
+  const situation = situations[index];
   const isLast = index >= TOTAL_WORDS - 1;
   const isTimed = mode === "timed";
   const progressPct = TOTAL_WORDS > 0 ? ((index + 1) / TOTAL_WORDS) * 100 : 0;
@@ -138,37 +139,35 @@ function PracticePage() {
 
   useEffect(() => {
     if (phase === "test") {
-      inputRef.current?.focus();
+      textareaRef.current?.focus();
     }
   }, [phase, index]);
 
   useEffect(() => {
-    if (phase !== "test" || !isTimed || !word) return;
+    if (phase !== "test" || !isTimed || !situation) return;
     if (timeLeft <= 0) {
       advance();
       return;
     }
     const timer = window.setTimeout(() => setTimeLeft((t) => t - 1), 1000);
     return () => window.clearTimeout(timer);
-  }, [phase, isTimed, timeLeft, word]);
+  }, [phase, isTimed, timeLeft, situation]);
 
   useEffect(() => {
     if (phase !== "results" || !allResponses.length) return;
     const run = async () => {
       setLoadingAnalysis(true);
       try {
-        const result = await getFullTestAnalysis(allResponses);
+        const result = await getSRTFullAnalysis(allResponses);
         setAnalysis(result);
         const attemptId = sessionStorage.getItem("forgessb_current_attempt_id");
         if (attemptId) {
-          console.log("[wat_practice.results] attempt_id", attemptId);
-          const updated = await updateTestAttempt(
+          await updateTestAttempt(
             attemptId,
-            allResponses,
+            allResponses as unknown as { word: string; response: string }[],
             result as unknown as object,
             allResponses.length
           );
-          console.log("[wat_practice.results] updateTestAttempt result", updated);
         }
       } catch {
         setError("Analysis failed. Please try again.");
@@ -190,7 +189,7 @@ function PracticePage() {
       const attemptId = await recordTestAttempt(
         authUser.id,
         undefined,
-        "wat_practice",
+        "srt_practice",
         undefined,
         undefined,
         undefined,
@@ -198,8 +197,9 @@ function PracticePage() {
       );
       if (attemptId) sessionStorage.setItem("forgessb_current_attempt_id", attemptId);
       sessionStorage.setItem("forgessb_attempt_in_progress", "true");
-      const shuffled = [...WAT_WORDS].sort(() => Math.random() - 0.5).slice(0, wordCount);
-      setWords(shuffled);
+      sessionStorage.setItem("srt_word_count", wordCount.toString());
+      const shuffled = [...SRT_SITUATIONS].sort(() => Math.random() - 0.5).slice(0, wordCount);
+      setSituations(shuffled);
       setPhase("test");
       setIndex(0);
       setResponse("");
@@ -224,7 +224,7 @@ function PracticePage() {
       const attemptId = await recordTestAttempt(
         undefined,
         localStorage.getItem(ANON_ID_KEY) ?? undefined,
-        "wat_practice"
+        "srt_practice"
       );
       if (attemptId) sessionStorage.setItem("forgessb_current_attempt_id", attemptId);
     } else {
@@ -234,20 +234,21 @@ function PracticePage() {
         return;
       }
       const attemptId = await recordTestAttempt(
-        authUser?.id,
+        authUser.id,
         undefined,
-        "wat_practice",
+        "srt_practice",
         undefined,
         undefined,
         undefined,
-        authUser?.email ?? undefined
+        authUser.email ?? undefined
       );
       if (attemptId) sessionStorage.setItem("forgessb_current_attempt_id", attemptId);
       sessionStorage.setItem("forgessb_attempt_in_progress", "true");
     }
 
-    const shuffled = [...WAT_WORDS].sort(() => Math.random() - 0.5).slice(0, wordCount);
-    setWords(shuffled);
+    sessionStorage.setItem("srt_word_count", wordCount.toString());
+    const shuffled = [...SRT_SITUATIONS].sort(() => Math.random() - 0.5).slice(0, wordCount);
+    setSituations(shuffled);
     setPhase("test");
     setIndex(0);
     setResponse("");
@@ -258,11 +259,11 @@ function PracticePage() {
   }
 
   function advance() {
-    if (!word) return;
-    const updated = [...allResponses, { word, response: response.trim() }];
+    if (!situation) return;
+    const updated = [...allResponses, { situation, response: response.trim() }];
     setAllResponses(updated);
     if (isLast) {
-      sessionStorage.setItem("wat_practice_responses", JSON.stringify(updated));
+      sessionStorage.setItem("srt_practice_responses", JSON.stringify(updated));
       setPhase("results");
       return;
     }
@@ -274,6 +275,13 @@ function PracticePage() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     advance();
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      advance();
+    }
   }
 
   if (accessState === "checking") {
@@ -347,9 +355,9 @@ function PracticePage() {
       <div className="min-h-screen flex flex-col bg-background">
         <header className="border-b border-border/50 px-8 py-5">
           <div className="mx-auto flex w-full max-w-4xl items-center justify-between gap-3">
-            <p className="font-mono text-xs uppercase tracking-[0.25em] text-gold">WAT · Practice</p>
+            <p className="font-mono text-xs uppercase tracking-[0.25em] text-gold">SRT · Practice</p>
             <Link
-              to="/tests/wat"
+              to="/tests/srt"
               className="border border-border bg-transparent px-3 py-2 font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground transition-colors hover:border-gold/40 hover:text-foreground"
             >
               End Session
@@ -364,10 +372,10 @@ function PracticePage() {
               <h1 className="mt-3 font-serif text-3xl text-foreground sm:text-4xl">Configure Training Session</h1>
               <div className="mt-6 h-px w-20 bg-gold/50" />
               <p className="mt-6 text-sm leading-relaxed text-foreground/80">
-                Select word count and timing mode before commencing your WAT drill.
+                Select situation count and timing mode before commencing your SRT drill.
               </p>
               <div className="mt-8">
-                <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">Word Count</p>
+                <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">Situation Count</p>
                 <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-5">
                   {PRACTICE_COUNTS.map((count) => (
                     <button
@@ -385,7 +393,7 @@ function PracticePage() {
                   ))}
                 </div>
                 <p className="mt-3 text-xs leading-relaxed text-muted-foreground/70">
-                  After completing all words, our AI will analyse your full response pattern and generate a comprehensive OLQ assessment.
+                  After completing all situations, our AI will analyse your full response pattern and generate a comprehensive OLQ assessment.
                 </p>
               </div>
               <div className="mt-8">
@@ -410,7 +418,7 @@ function PracticePage() {
               <div className="mt-10 border border-gold/40 bg-surface-2/50 p-4">
                 <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">Session Profile</p>
                 <p className="mt-2 font-serif text-2xl text-foreground">
-                  {wordCount} words · <span className="text-gold">{isTimed ? "timed (15s/word)" : "untimed"}</span>
+                  {wordCount} situations · <span className="text-gold">{isTimed ? "timed (30s/situation)" : "untimed"}</span>
                 </p>
               </div>
               <div className="mt-10 flex justify-center">
@@ -430,8 +438,8 @@ function PracticePage() {
   }
 
   if (phase === "test") {
-    const timerTone = timeLeft <= 4 ? "text-danger" : timeLeft <= 8 ? "text-amber" : "text-gold";
-    const timerBarColour = timeLeft <= 4 ? "bg-danger" : timeLeft <= 8 ? "bg-amber" : "bg-gold";
+    const timerTone = timeLeft <= 5 ? "text-danger" : timeLeft <= 10 ? "text-amber" : "text-gold";
+    const timerBarColour = timeLeft <= 5 ? "bg-danger" : timeLeft <= 10 ? "bg-amber" : "bg-gold";
     const mins = Math.floor(timeLeft / 60);
     const secs = timeLeft % 60;
     const timerText = `${mins}:${secs.toString().padStart(2, "0")}`;
@@ -440,7 +448,7 @@ function PracticePage() {
       <div className="fixed inset-0 flex flex-col bg-background">
         <header className="border-b border-border/50 px-4 py-4 sm:px-8 sm:py-5">
           <div className="mx-auto flex max-w-5xl items-center gap-4 sm:gap-6">
-            <div className="font-mono text-xs uppercase tracking-[0.25em] text-gold">WAT · Practice Live</div>
+            <div className="font-mono text-xs uppercase tracking-[0.25em] text-gold">SRT · Practice Live</div>
             <div className="flex-1">
               <div className="mb-1.5 flex items-center justify-between font-mono text-xs">
                 <span className="text-muted-foreground">PROGRESS</span>
@@ -465,40 +473,37 @@ function PracticePage() {
             </button>
           </div>
         </header>
-        <div className="relative flex flex-1 items-center justify-center overflow-hidden px-4 sm:px-6">
+        <div className="relative flex flex-1 items-start justify-center overflow-y-auto px-4 py-6 sm:items-center sm:px-6">
           <div className="absolute inset-0 grid-texture opacity-40" aria-hidden="true" />
-          <div className="relative w-full max-w-3xl">
-            <p className="text-center font-mono text-[10px] uppercase tracking-[0.4em] text-gold/70">Stimulus</p>
-            <h1
+          <div className="relative w-full max-w-2xl">
+            <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-gold/70">Situation</p>
+            <p
               key={index}
-              className="animate-word-in mt-4 text-center font-serif font-semibold uppercase leading-none text-foreground sm:mt-6"
-              style={{ fontSize: "clamp(2.5rem, 11vw, 7rem)", letterSpacing: "0.05em" }}
+              className="animate-word-in mt-4 font-serif text-xl leading-relaxed text-foreground"
             >
-              {word}
-            </h1>
-            <form onSubmit={handleSubmit} className="mt-8 sm:mt-12">
-              <input
-                ref={inputRef}
-                type="text"
+              {situation}
+            </p>
+            <form onSubmit={handleSubmit} className="mt-6 sm:mt-8">
+              <textarea
+                ref={textareaRef}
                 value={response}
                 onChange={(e) => setResponse(e.target.value)}
-                placeholder="Your response..."
+                onKeyDown={handleKeyDown}
+                placeholder="Describe what you would do..."
+                rows={3}
                 autoComplete="off"
-                className="w-full border-b-2 border-border bg-surface-1/40 px-4 py-3 text-center font-serif text-xl text-foreground placeholder:font-sans placeholder:text-sm placeholder:uppercase placeholder:tracking-[0.2em] placeholder:text-muted-foreground/70 focus:border-gold focus:bg-surface-1 focus:outline-none sm:px-5 sm:py-4 sm:text-2xl"
+                className="w-full resize-none border border-border bg-surface-1/40 px-4 py-3 font-serif text-base text-foreground placeholder:font-sans placeholder:text-sm placeholder:uppercase placeholder:tracking-[0.2em] placeholder:text-muted-foreground/70 focus:border-gold focus:bg-surface-1 focus:outline-none sm:px-5 sm:py-4 sm:text-lg"
               />
-              <div className="mt-4 flex items-center justify-center gap-4">
+              <div className="mt-3 flex items-center justify-between gap-4">
                 <p className="hidden font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground sm:block">
-                  Press Enter to submit{isTimed ? " · Auto-advance on timer" : ""}
+                  Enter to submit · Shift+Enter for new line{isTimed ? " · Auto-advance on timer" : ""}
                 </p>
                 <button
                   type="submit"
-                  className="sm:hidden border border-gold/60 bg-gold/10 px-8 py-3 font-mono text-xs uppercase tracking-[0.2em] text-gold active:bg-gold/20"
+                  className="border border-gold/60 bg-gold/10 px-8 py-2.5 font-mono text-xs uppercase tracking-[0.2em] text-gold transition-colors hover:bg-gold/20 active:bg-gold/30 sm:ml-auto"
                 >
                   Submit →
                 </button>
-                <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground sm:hidden">
-                  {isTimed ? "Auto-advances on timer" : "Manual advance on submit"}
-                </p>
               </div>
             </form>
           </div>
@@ -532,7 +537,7 @@ function PracticePage() {
       <div className="flex min-h-screen flex-col items-center justify-center gap-6">
         <p className="font-mono text-xs uppercase tracking-[0.3em] text-danger">{error ?? "Something went wrong."}</p>
         <Link
-          to="/tests/wat"
+          to="/tests/srt"
           className="border border-gold px-6 py-3 font-mono text-xs uppercase tracking-[0.2em] text-gold hover:bg-gold hover:text-primary-foreground"
         >
           Return to Practice Hub
@@ -548,7 +553,7 @@ function PracticePage() {
 
   function downloadReport() {
     const lines = [
-      "ForgeSSB WAT Practice Report",
+      "ForgeSSB SRT Practice Report",
       "============================",
       `Candidate: ${candidateName}`,
       `Date: ${new Date().toLocaleString()}`,
@@ -567,14 +572,14 @@ function PracticePage() {
       "",
       "Response Log",
       "------------",
-      ...allResponses.map((r, i) => `${i + 1}. ${r.word} -> ${r.response || "[No response]"}`),
+      ...allResponses.map((r, i) => `${i + 1}. ${r.situation} -> ${r.response || "[No response]"}`),
       "",
     ];
     const blob = new Blob([lines.join("\n")], { type: "text/plain;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `forgessb-wat-practice-report-${new Date().toISOString().slice(0, 10)}.txt`;
+    a.download = `forgessb-srt-practice-report-${new Date().toISOString().slice(0, 10)}.txt`;
     a.click();
     URL.revokeObjectURL(url);
   }
@@ -583,50 +588,26 @@ function PracticePage() {
     <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
       <div className="border-b border-border pb-10">
         <p className="font-mono text-[11px] uppercase tracking-[0.35em] text-gold">Report · Practice Simulation</p>
-        <h1 className="mt-3 font-serif text-3xl text-foreground sm:text-5xl">Assessment Complete</h1>
+        <h1 className="mt-3 font-serif text-3xl text-foreground sm:text-5xl">SRT Assessment Complete</h1>
         <p className="mt-3 text-base text-muted-foreground">
-          WAT Practice · {allResponses.length} Responses Analysed
+          SRT Practice · {allResponses.length} Responses Analysed
         </p>
-        <div className="mt-8 grid gap-px bg-border grid-cols-1 sm:grid-cols-3">
+        <div className="mt-8 grid grid-cols-1 gap-px bg-border sm:grid-cols-3">
           <Stat label="Composite OLQ Score" value={`${overall}`} suffix="/ 100" />
           <Stat label="Overall Rating" value={overallRating.label} tone={overallRating.tone} />
           <Stat label="Responses Recorded" value={`${allResponses.length}`} />
         </div>
       </div>
-      <div className="mt-10 border border-gold/30 bg-surface-1 p-8">
+      <div className="mt-10 border border-gold/30 bg-surface-1 p-6 sm:p-8">
         <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-gold">Senior Assessor · Overall Evaluation</p>
         <p className="mt-4 text-base leading-relaxed text-foreground/85">{analysis.summary}</p>
         <div className="mt-4 border-t border-border/50 pt-4">
           <p className="text-sm italic text-muted-foreground">{analysis.assessor_note}</p>
         </div>
       </div>
-      <div className="mt-14 flex flex-col gap-px lg:grid lg:grid-cols-5">
-        <div className="bg-surface-1 p-6 sm:p-8 lg:col-span-3">
-          <SectionHeader number="I" title="Pattern Analysis" />
-          <div className="mt-6 space-y-4 text-sm leading-relaxed text-foreground/85">
-            {analysis.pattern_analysis.split("\n\n").map((para, i) => (
-              <p key={i}>{para}</p>
-            ))}
-          </div>
-        </div>
-        <div className="bg-surface-1 p-6 sm:p-8 lg:col-span-2">
-          <SectionHeader number="II" title="Improvement Areas" />
-          <ul className="mt-6 space-y-5 text-sm">
-            {analysis.improvement_areas.map((item, i) => (
-              <li key={i} className="flex gap-4 border-l border-gold/40 pl-4">
-                <span className="font-mono text-xs text-gold">{String(i + 1).padStart(2, "0")}</span>
-                <div>
-                  <p className="font-medium text-foreground">{item.area}</p>
-                  <p className="mt-1 text-muted-foreground">{item.recommendation}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
-      <div className="mt-16">
-        <SectionHeader number="III" title="Officer-Like Qualities" subtitle="Per-attribute breakdown" />
-        <div className="mt-8 grid gap-px bg-border grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-14">
+        <SectionHeader number="I" title="Officer-Like Qualities" subtitle="Per-attribute breakdown" />
+        <div className="mt-8 grid grid-cols-1 gap-px bg-border sm:grid-cols-2 lg:grid-cols-3">
           {OLQS.map((olq) => {
             const score = scores[olq] ?? 0;
             const r = ratingFromScore(score);
@@ -643,6 +624,30 @@ function PracticePage() {
               </div>
             );
           })}
+        </div>
+      </div>
+      <div className="mt-16 flex flex-col gap-px lg:grid lg:grid-cols-5">
+        <div className="bg-surface-1 p-6 sm:p-8 lg:col-span-3">
+          <SectionHeader number="II" title="Pattern Analysis" />
+          <div className="mt-6 space-y-4 text-sm leading-relaxed text-foreground/85">
+            {analysis.pattern_analysis.split("\n\n").map((para, i) => (
+              <p key={i}>{para}</p>
+            ))}
+          </div>
+        </div>
+        <div className="bg-surface-1 p-6 sm:p-8 lg:col-span-2">
+          <SectionHeader number="III" title="Improvement Areas" />
+          <ul className="mt-6 space-y-5 text-sm">
+            {analysis.improvement_areas.map((item, i) => (
+              <li key={i} className="flex gap-4 border-l border-gold/40 pl-4">
+                <span className="font-mono text-xs text-gold">{String(i + 1).padStart(2, "0")}</span>
+                <div>
+                  <p className="font-medium text-foreground">{item.area}</p>
+                  <p className="mt-1 text-muted-foreground">{item.recommendation}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
       <div className="mt-16">
@@ -663,7 +668,7 @@ function PracticePage() {
               <thead className="bg-surface-2 text-left font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
                 <tr>
                   <th className="hidden px-5 py-3 font-medium sm:table-cell">#</th>
-                  <th className="px-4 py-3 font-medium sm:px-5">Stimulus</th>
+                  <th className="px-4 py-3 font-medium sm:px-5">Situation</th>
                   <th className="px-4 py-3 font-medium sm:px-5">Your Response</th>
                 </tr>
               </thead>
@@ -671,9 +676,9 @@ function PracticePage() {
                 {allResponses.map((r, i) => (
                   <tr key={i} className="border-t border-border/50 hover:bg-surface-1/60">
                     <td className="hidden px-5 py-4 font-mono text-xs text-muted-foreground sm:table-cell">{String(i + 1).padStart(2, "0")}</td>
-                    <td className="px-4 py-3 font-serif text-base text-gold sm:px-5 sm:py-4">{r.word}</td>
+                    <td className="px-4 py-3 text-sm text-foreground/80 sm:px-5 sm:py-4">{r.situation}</td>
                     <td className="px-4 py-3 text-foreground/90 sm:px-5 sm:py-4">
-                      {r.response || <span className="text-muted-foreground italic">No response</span>}
+                      {r.response || <span className="italic text-muted-foreground">No response</span>}
                     </td>
                   </tr>
                 ))}
@@ -692,7 +697,7 @@ function PracticePage() {
           Download Report
         </button>
         <Link
-          to="/tests/wat"
+          to="/tests/srt"
           className="inline-flex w-full items-center justify-center gap-3 border border-border px-7 py-3.5 text-sm font-medium uppercase tracking-[0.18em] text-foreground/80 transition-all hover:border-foreground/40 hover:text-foreground sm:w-auto"
         >
           <RotateCcw className="h-4 w-4" />

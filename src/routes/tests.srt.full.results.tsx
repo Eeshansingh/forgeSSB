@@ -1,16 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { OLQS, ratingFromScore } from "@/lib/wat-data";
-import { getFullTestAnalysis } from "@/lib/anthropic";
+import { getSRTFullAnalysis } from "@/lib/srt-anthropic";
 import { supabase, updateTestAttempt } from "@/lib/supabase";
-import { AnalysisLoading } from "@/components/AnalysisLoading";
 import { ChevronDown, Download, RotateCcw } from "lucide-react";
+import { AnalysisLoading } from "@/components/AnalysisLoading";
 
-export const Route = createFileRoute("/tests/wat/full/results")({
+export const Route = createFileRoute("/tests/srt/full/results")({
   head: () => ({
     meta: [
-      { title: "Assessment Complete — WAT Results — ForgeSSB" },
-      { name: "description", content: "OLQ scores and AI pattern analysis from your WAT simulation." },
+      { title: "Assessment Complete — SRT Results — ForgeSSB" },
+      { name: "description", content: "OLQ scores and AI pattern analysis from your SRT simulation." },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -25,51 +25,44 @@ type Analysis = {
   assessor_note: string;
 };
 
-type WatResponse = { word: string; response: string };
+type SrtResponse = { situation: string; response: string };
 type AuthUser = { email?: string | null } | null;
 
 function ResultsPage() {
   const [tableOpen, setTableOpen] = useState(true);
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
-  const [responses, setResponses] = useState<WatResponse[]>([]);
+  const [responses, setResponses] = useState<SrtResponse[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [user, setUser] = useState<AuthUser>(null);
-  const [showFirstAttemptPrompt, setShowFirstAttemptPrompt] = useState(false);
 
   useEffect(() => {
     const run = async () => {
       setLoading(true);
       try {
-        const stored = sessionStorage.getItem("wat_responses");
+        const stored = sessionStorage.getItem("srt_responses");
         if (!stored) {
           setError("No responses found. Please complete the test first.");
-          setAccessState("allowed");
           return;
         }
 
-        const parsed: WatResponse[] = JSON.parse(stored);
+        const parsed: SrtResponse[] = JSON.parse(stored);
         setResponses(parsed);
 
         const { data } = await supabase.auth.getUser();
-        const authUser = (data.user as AuthUser) ?? null;
-        setUser(authUser);
-        if (!authUser && Number(localStorage.getItem("forgessb_attempt_count") ?? "0") === 1) {
-          setShowFirstAttemptPrompt(true);
-        }
+        setUser((data.user as AuthUser) ?? null);
 
-        const dataAnalysis = await getFullTestAnalysis(parsed);
+        const dataAnalysis = await getSRTFullAnalysis(parsed);
         setAnalysis(dataAnalysis);
+
         const attemptId = sessionStorage.getItem("forgessb_current_attempt_id");
         if (attemptId) {
-          console.log("[wat_full.results] attempt_id", attemptId);
-          const updated = await updateTestAttempt(
+          await updateTestAttempt(
             attemptId,
-            parsed,
+            parsed as unknown as { word: string; response: string }[],
             dataAnalysis as unknown as object,
             parsed.length
           );
-          console.log("[wat_full.results] updateTestAttempt result", updated);
         }
       } catch (err) {
         console.error(err);
@@ -93,7 +86,7 @@ function ResultsPage() {
           {error ?? "Something went wrong."}
         </p>
         <Link
-          to="/tests/wat/full/instructions"
+          to="/tests/srt/full/instructions"
           className="border border-gold px-6 py-3 font-mono text-xs uppercase tracking-[0.2em] text-gold hover:bg-gold hover:text-primary-foreground"
         >
           Return to Instructions
@@ -111,7 +104,7 @@ function ResultsPage() {
 
   function downloadReport() {
     const lines = [
-      "ForgeSSB WAT Report",
+      "ForgeSSB SRT Report",
       "===================",
       `Candidate: ${candidateName}`,
       `Date: ${new Date().toLocaleString()}`,
@@ -130,14 +123,14 @@ function ResultsPage() {
       "",
       "Response Log",
       "------------",
-      ...responses.map((r, i) => `${i + 1}. ${r.word} -> ${r.response || "[No response]"}`),
+      ...responses.map((r, i) => `${i + 1}. ${r.situation} -> ${r.response || "[No response]"}`),
       "",
     ];
     const blob = new Blob([lines.join("\n")], { type: "text/plain;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `forgessb-wat-full-report-${new Date().toISOString().slice(0, 10)}.txt`;
+    a.download = `forgessb-srt-full-report-${new Date().toISOString().slice(0, 10)}.txt`;
     a.click();
     URL.revokeObjectURL(url);
   }
@@ -147,13 +140,13 @@ function ResultsPage() {
       {/* Header */}
       <div className="border-b border-border pb-10">
         <p className="font-mono text-[11px] uppercase tracking-[0.35em] text-gold">
-          Report · Word Association Test
+          Report · Situation Reaction Test
         </p>
-        <h1 className="mt-3 font-serif text-3xl text-foreground sm:text-5xl">Assessment Complete</h1>
+        <h1 className="mt-3 font-serif text-3xl text-foreground sm:text-5xl">SRT Assessment Complete</h1>
         <p className="mt-3 text-base text-muted-foreground">
-          WAT Full Simulation · {responses.length} Responses Analysed
+          Situation Reaction Test · {responses.length} Responses Analysed
         </p>
-        <div className="mt-8 grid gap-px bg-border grid-cols-1 sm:grid-cols-3">
+        <div className="mt-8 grid grid-cols-1 gap-px bg-border sm:grid-cols-3">
           <Stat label="Composite OLQ Score" value={`${overall}`} suffix="/ 100" />
           <Stat label="Overall Rating" value={overallRating.label} tone={overallRating.tone} />
           <Stat label="Responses Recorded" value={`${responses.length}`} suffix="of 60" />
@@ -161,7 +154,7 @@ function ResultsPage() {
       </div>
 
       {/* Assessor Summary */}
-      <div className="mt-10 border border-gold/30 bg-surface-1 p-8">
+      <div className="mt-10 border border-gold/30 bg-surface-1 p-6 sm:p-8">
         <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-gold">
           Senior Assessor · Overall Evaluation
         </p>
@@ -200,7 +193,7 @@ function ResultsPage() {
       {/* OLQ Grid */}
       <div className="mt-16">
         <SectionHeader number="III" title="Officer-Like Qualities" subtitle="Per-attribute breakdown" />
-        <div className="mt-8 grid gap-px bg-border grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-8 grid grid-cols-1 gap-px bg-border sm:grid-cols-2 lg:grid-cols-3">
           {OLQS.map((olq) => {
             const score = scores[olq] ?? 0;
             const r = ratingFromScore(score);
@@ -241,7 +234,7 @@ function ResultsPage() {
               <thead className="bg-surface-2 text-left font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
                 <tr>
                   <th className="hidden px-5 py-3 font-medium sm:table-cell">#</th>
-                  <th className="px-4 py-3 font-medium sm:px-5">Stimulus</th>
+                  <th className="px-4 py-3 font-medium sm:px-5">Situation</th>
                   <th className="px-4 py-3 font-medium sm:px-5">Your Response</th>
                 </tr>
               </thead>
@@ -251,9 +244,9 @@ function ResultsPage() {
                     <td className="hidden px-5 py-4 font-mono text-xs text-muted-foreground sm:table-cell">
                       {String(i + 1).padStart(2, "0")}
                     </td>
-                    <td className="px-4 py-3 font-serif text-base text-gold sm:px-5 sm:py-4">{r.word}</td>
+                    <td className="px-4 py-3 text-sm text-foreground/80 sm:px-5 sm:py-4">{r.situation}</td>
                     <td className="px-4 py-3 text-foreground/90 sm:px-5 sm:py-4">
-                      {r.response || <span className="text-muted-foreground italic">No response</span>}
+                      {r.response || <span className="italic text-muted-foreground">No response</span>}
                     </td>
                   </tr>
                 ))}
@@ -274,31 +267,13 @@ function ResultsPage() {
           Download Report
         </button>
         <Link
-          to="/tests/wat"
+          to="/tests/srt/full/instructions"
           className="inline-flex w-full items-center justify-center gap-3 border border-border px-7 py-3.5 text-sm font-medium uppercase tracking-[0.18em] text-foreground/80 transition-all hover:border-foreground/40 hover:text-foreground sm:w-auto"
         >
           <RotateCcw className="h-4 w-4" />
           Attempt Again
         </Link>
       </div>
-
-      {showFirstAttemptPrompt && !user && (
-        <div className="mt-10 border border-gold/40 bg-surface-1/60 p-6 sm:p-7">
-          <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-gold">Recommendation</p>
-          <p className="mt-3 font-serif text-xl text-foreground">
-            Save your results and get 3 free attempts — sign in with Google
-          </p>
-          <div className="mt-5">
-            <button
-              type="button"
-              onClick={() => void signInWithGoogle()}
-              className="inline-flex items-center justify-center border border-gold bg-gold/10 px-7 py-3 text-xs uppercase tracking-[0.22em] text-gold transition-all hover:bg-gold hover:text-primary-foreground"
-            >
-              Sign In With Google
-            </button>
-          </div>
-        </div>
-      )}
     </section>
   );
 }

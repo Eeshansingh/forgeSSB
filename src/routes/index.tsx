@@ -64,7 +64,7 @@ function LandingPage() {
 
           <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row">
             <Link
-              to="/tests/wat"
+              to="/tests"
               className="inline-flex items-center gap-2 border border-gold bg-gold/5 px-7 py-3.5 text-sm font-medium uppercase tracking-[0.18em] text-gold transition-all hover:bg-gold hover:text-primary-foreground"
             >
               Commence Training →
@@ -120,7 +120,7 @@ function LandingPage() {
             abbreviation="SRT"
             description="60 real-world scenarios. Demonstrate judgement under pressure."
             icon={<AlertTriangle className="h-5 w-5" />}
-            locked
+            to="/tests/srt"
           />
           <ModuleCard
             name="Group Testing Tasks"

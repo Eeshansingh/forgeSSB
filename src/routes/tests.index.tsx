@@ -40,7 +40,7 @@ function TestsPage() {
           abbreviation="SRT"
           description="Sixty scenarios. Limited time. Demonstrate judgement and resolve."
           icon={<AlertTriangle className="h-5 w-5" />}
-          locked
+          to="/tests/srt"
         />
       </div>
     </section>
