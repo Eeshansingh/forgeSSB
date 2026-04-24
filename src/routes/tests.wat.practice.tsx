@@ -7,7 +7,7 @@ import { AnalysisLoading } from "@/components/AnalysisLoading";
 import { LeaderboardTeaser } from "@/components/LeaderboardTeaser";
 import { ChevronDown, Download, RotateCcw } from "lucide-react";
 
-const ADMIN_EMAILS = ["s.eeshan3333@gmail.com", "ridhimanegiflip@gmail.com"];
+const ADMIN_EMAILS = ["s.eeshan3333@gmail.com", "ridhimanegiflip@gmail.com", "adsingh080498@gmail.com"];
 
 export const Route = createFileRoute("/tests/wat/practice")({
   head: () => ({
