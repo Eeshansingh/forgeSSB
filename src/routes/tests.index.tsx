@@ -24,9 +24,16 @@ function TestsPage() {
         <ModuleCard
           name="Word Association Test"
           abbreviation="WAT"
-          description="One word. Fifteen seconds. Sixty rounds. Train spontaneity under load."
+          description="One word. Fifteen seconds. Sixty rounds."
           icon={<Brain className="h-5 w-5" />}
           to="/tests/wat"
+        />
+        <ModuleCard
+          name="Situation Reaction Test"
+          abbreviation="SRT"
+          description="60 situations. 30 seconds each. How you react defines your profile."
+          icon={<AlertTriangle className="h-5 w-5" />}
+          to="/tests/srt"
         />
         <ModuleCard
           name="Thematic Apperception Test"
@@ -34,13 +41,6 @@ function TestsPage() {
           description="Construct narratives from ambiguous imagery. Reveal motivation and worldview."
           icon={<ImageIcon className="h-5 w-5" />}
           locked
-        />
-        <ModuleCard
-          name="Situation Reaction Test"
-          abbreviation="SRT"
-          description="Sixty scenarios. Limited time. Demonstrate judgement and resolve."
-          icon={<AlertTriangle className="h-5 w-5" />}
-          to="/tests/srt"
         />
       </div>
     </section>

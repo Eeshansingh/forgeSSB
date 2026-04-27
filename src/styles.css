@@ -164,3 +164,35 @@
   }
   .pulse-gold { animation: pulse-gold 2s ease-out infinite; }
 }
+
+@media print {
+  /* Switch to light theme for clean report output */
+  :root {
+    --background: #ffffff;
+    --foreground: #111111;
+    --surface-1: #f8f8f6;
+    --surface-2: #f0f0ec;
+    --border: rgba(0, 0, 0, 0.18);
+    --muted-foreground: #5a5a52;
+    --gold: #7a5f20;
+    --success: #2e6e2e;
+  }
+
+  html { color-scheme: light; }
+
+  body {
+    background: white;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Remove decorative textures */
+  .grid-texture, .grid-texture-fine {
+    background-image: none !important;
+  }
+
+  /* Hide navigation, footer, interactive chrome */
+  .print-hide {
+    display: none !important;
+  }
+}

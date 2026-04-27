@@ -82,7 +82,7 @@ function SrtModePage() {
         </p>
         <h1 className="mt-3 font-serif text-5xl text-foreground">Situation Reaction Test</h1>
         <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-          60 situations. 30 seconds each. How you react reveals who you are.
+          60 situations. 30 seconds each. How you react defines your profile.
         </p>
       </div>
 

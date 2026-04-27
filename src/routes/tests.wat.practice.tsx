@@ -6,8 +6,7 @@ import { getTestAttempts, recordTestAttempt, signInWithGoogle, supabase, updateT
 import { AnalysisLoading } from "@/components/AnalysisLoading";
 import { LeaderboardTeaser } from "@/components/LeaderboardTeaser";
 import { ChevronDown, Download, RotateCcw } from "lucide-react";
-
-const ADMIN_EMAILS = ["s.eeshan3333@gmail.com", "ridhimanegiflip@gmail.com", "adsingh080498@gmail.com"];
+import { ADMIN_EMAILS, canTakeTest } from '../lib/auth'
 
 export const Route = createFileRoute("/tests/wat/practice")({
   head: () => ({
@@ -52,6 +51,7 @@ function getAnonymousId() {
 function PracticePage() {
   const navigate = useNavigate();
   const [phase, setPhase] = useState<Phase>("setup");
+  const [showEndConfirm, setShowEndConfirm] = useState(false);
   const [accessState, setAccessState] = useState<AccessState>("checking");
   const [user, setUser] = useState<AuthUser>(null);
   const [waitlistJoined, setWaitlistJoined] = useState(false);
@@ -455,16 +455,35 @@ function PracticePage() {
             </div>
             <button
               type="button"
-              onClick={() => {
-                if (window.confirm("Are you sure you want to end this session? Your progress will be lost.")) {
-                  navigate({ to: "/tests" });
-                }
-              }}
+              onClick={() => setShowEndConfirm(true)}
               className="shrink-0 border border-border/50 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:border-destructive/50 hover:text-destructive"
             >
               ✕ End
             </button>
           </div>
+          {showEndConfirm && (
+            <div className="mt-3 flex flex-col gap-3 border-t border-border/50 pt-3 sm:flex-row sm:items-center sm:justify-between">
+              <p className="font-mono text-[11px] text-muted-foreground">
+                End this session? Your progress will be lost.
+              </p>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => navigate({ to: "/tests" })}
+                  className="border border-gold bg-gold/10 px-4 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-gold transition-all hover:bg-gold hover:text-primary-foreground"
+                >
+                  Yes, End Session
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowEndConfirm(false)}
+                  className="px-4 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  Continue
+                </button>
+              </div>
+            </div>
+          )}
         </header>
         <div className="relative flex flex-1 items-center justify-center overflow-hidden px-4 sm:px-6">
           <div className="absolute inset-0 grid-texture opacity-40" aria-hidden="true" />
@@ -548,36 +567,7 @@ function PracticePage() {
   const candidateName = user?.email ?? "Anonymous";
 
   function downloadReport() {
-    const lines = [
-      "ForgeSSB WAT Practice Report",
-      "============================",
-      `Candidate: ${candidateName}`,
-      `Date: ${new Date().toLocaleString()}`,
-      "",
-      "OLQ Scores",
-      "----------",
-      ...OLQS.map((olq) => `${olq}: ${scores[olq] ?? 0}`),
-      "",
-      "Pattern Analysis",
-      "----------------",
-      analysis.pattern_analysis,
-      "",
-      "Assessor Note",
-      "-------------",
-      analysis.assessor_note,
-      "",
-      "Response Log",
-      "------------",
-      ...allResponses.map((r, i) => `${i + 1}. ${r.word} -> ${r.response || "[No response]"}`),
-      "",
-    ];
-    const blob = new Blob([lines.join("\n")], { type: "text/plain;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `forgessb-wat-practice-report-${new Date().toISOString().slice(0, 10)}.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
+    window.print();
   }
 
   return (
@@ -683,7 +673,7 @@ function PracticePage() {
           </div>
         )}
       </div>
-      <div className="mt-16 flex flex-col gap-3 border-t border-border pt-10 sm:flex-row sm:items-center sm:justify-center sm:gap-4">
+      <div className="print-hide mt-16 flex flex-col gap-3 border-t border-border pt-10 sm:flex-row sm:items-center sm:justify-center sm:gap-4">
         <button
           type="button"
           onClick={downloadReport}
@@ -700,7 +690,7 @@ function PracticePage() {
           Attempt Again
         </Link>
       </div>
-      <LeaderboardTeaser testType="wat" userScore={overall} userRating={overallRating.label} practice />
+      <div className="print-hide"><LeaderboardTeaser testType="wat" userScore={overall} userRating={overallRating.label} practice /></div>
       {showFirstAttemptPrompt && !user && (
         <div className="mt-10 border border-gold/40 bg-surface-1/60 p-6 sm:p-7">
           <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-gold">Recommendation</p>

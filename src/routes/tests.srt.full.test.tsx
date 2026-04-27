@@ -27,6 +27,7 @@ function SrtTestScreen() {
   const [response, setResponse] = useState("");
   const [timeLeft, setTimeLeft] = useState(SECONDS_PER_WORD);
   const [allResponses, setAllResponses] = useState<{ situation: string; response: string }[]>([]);
+  const [showEndConfirm, setShowEndConfirm] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const situation = situations[index];
@@ -81,9 +82,7 @@ function SrtTestScreen() {
   }
 
   function endSession() {
-    if (window.confirm("Are you sure you want to end this session? Your progress will be lost.")) {
-      navigate({ to: "/tests" });
-    }
+    setShowEndConfirm(true);
   }
 
   const progressPct = ((index + 1) / TOTAL_WORDS) * 100;
@@ -129,6 +128,29 @@ function SrtTestScreen() {
             ✕ End
           </button>
         </div>
+        {showEndConfirm && (
+          <div className="mt-3 flex flex-col gap-3 border-t border-border/50 pt-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="font-mono text-[11px] text-muted-foreground">
+              End this session? Your progress will be lost.
+            </p>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => navigate({ to: "/tests" })}
+                className="border border-gold bg-gold/10 px-4 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-gold transition-all hover:bg-gold hover:text-primary-foreground"
+              >
+                Yes, End Session
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowEndConfirm(false)}
+                className="px-4 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Continue
+              </button>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* CENTRE */}

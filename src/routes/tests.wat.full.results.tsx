@@ -117,36 +117,7 @@ function ResultsPage() {
   const candidateName = user?.email ?? "Anonymous";
 
   function downloadReport() {
-    const lines = [
-      "ForgeSSB WAT Report",
-      "===================",
-      `Candidate: ${candidateName}`,
-      `Date: ${new Date().toLocaleString()}`,
-      "",
-      "OLQ Scores",
-      "----------",
-      ...OLQS.map((olq) => `${olq}: ${scores[olq] ?? 0}`),
-      "",
-      "Pattern Analysis",
-      "----------------",
-      analysis.pattern_analysis,
-      "",
-      "Assessor Note",
-      "-------------",
-      analysis.assessor_note,
-      "",
-      "Response Log",
-      "------------",
-      ...responses.map((r, i) => `${i + 1}. ${r.word} -> ${r.response || "[No response]"}`),
-      "",
-    ];
-    const blob = new Blob([lines.join("\n")], { type: "text/plain;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `forgessb-wat-full-report-${new Date().toISOString().slice(0, 10)}.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
+    window.print();
   }
 
   return (
@@ -271,7 +242,7 @@ function ResultsPage() {
       </div>
 
       {/* CTAs */}
-      <div className="mt-16 flex flex-col gap-3 border-t border-border pt-10 sm:flex-row sm:items-center sm:justify-center sm:gap-4">
+      <div className="print-hide mt-16 flex flex-col gap-3 border-t border-border pt-10 sm:flex-row sm:items-center sm:justify-center sm:gap-4">
         <button
           type="button"
           onClick={downloadReport}
@@ -289,10 +260,10 @@ function ResultsPage() {
         </Link>
       </div>
 
-      <LeaderboardTeaser testType="wat" userScore={overall} userRating={overallRating.label} />
+      <div className="print-hide"><LeaderboardTeaser testType="wat" userScore={overall} userRating={overallRating.label} /></div>
 
       {showFirstAttemptPrompt && !user && (
-        <div className="mt-10 border border-gold/40 bg-surface-1/60 p-6 sm:p-7">
+        <div className="print-hide mt-10 border border-gold/40 bg-surface-1/60 p-6 sm:p-7">
           <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-gold">Recommendation</p>
           <p className="mt-3 font-serif text-xl text-foreground">
             Sign in to save these results and track your progress across sessions.

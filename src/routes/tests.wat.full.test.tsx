@@ -27,6 +27,7 @@ function WatTestScreen() {
   const [response, setResponse] = useState("");
   const [timeLeft, setTimeLeft] = useState(SECONDS_PER_WORD);
   const [allResponses, setAllResponses] = useState<{ word: string; response: string }[]>([]);
+  const [showEndConfirm, setShowEndConfirm] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const word = words[index];
@@ -74,9 +75,7 @@ function WatTestScreen() {
   }
 
   function endSession() {
-    if (window.confirm("Are you sure you want to end this session? Your progress will be lost.")) {
-      navigate({ to: "/tests" });
-    }
+    setShowEndConfirm(true);
   }
 
   const progressPct = ((index + 1) / TOTAL_WORDS) * 100;
@@ -95,32 +94,57 @@ function WatTestScreen() {
   return (
     <div className="fixed inset-0 flex flex-col bg-background">
       {/* TOP BAR */}
-      <header className="border-b border-border/50 px-4 py-4 sm:px-8 sm:py-5">
-        <div className="mx-auto flex max-w-5xl items-center gap-4 sm:gap-6">
-          <div className="font-mono text-xs uppercase tracking-[0.25em] text-gold">
-            WAT · Live
-          </div>
-          <div className="flex-1">
-            <div className="mb-1.5 flex items-center justify-between font-mono text-xs">
-              <span className="text-muted-foreground">PROGRESS</span>
-              <span className="text-foreground">
-                {String(index + 1).padStart(2, "0")} / {TOTAL_WORDS}
-              </span>
+      <header className="border-b border-border/50">
+        <div className="mx-auto max-w-5xl px-4 py-4 sm:px-8 sm:py-5">
+          <div className="flex items-center gap-4 sm:gap-6">
+            <div className="font-mono text-xs uppercase tracking-[0.25em] text-gold">
+              WAT · Live
             </div>
-            <div className="h-px w-full bg-border">
-              <div
-                className="h-full bg-gold transition-all duration-300"
-                style={{ width: `${progressPct}%` }}
-              />
+            <div className="flex-1">
+              <div className="mb-1.5 flex items-center justify-between font-mono text-xs">
+                <span className="text-muted-foreground">PROGRESS</span>
+                <span className="text-foreground">
+                  {String(index + 1).padStart(2, "0")} / {TOTAL_WORDS}
+                </span>
+              </div>
+              <div className="h-px w-full bg-border">
+                <div
+                  className="h-full bg-gold transition-all duration-300"
+                  style={{ width: `${progressPct}%` }}
+                />
+              </div>
             </div>
+            <button
+              type="button"
+              onClick={endSession}
+              className="shrink-0 border border-border/50 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:border-destructive/50 hover:text-destructive"
+            >
+              ✕ End
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={endSession}
-            className="shrink-0 border border-border/50 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:border-destructive/50 hover:text-destructive"
-          >
-            ✕ End
-          </button>
+          {showEndConfirm && (
+            <div className="mt-3 flex flex-col gap-3 border-t border-border/50 pt-3 sm:flex-row sm:items-center sm:justify-between">
+              <p className="font-mono text-[11px] text-muted-foreground">
+                End this session? Your progress will be lost.
+              </p>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => navigate({ to: "/tests" })}
+                  className="border border-gold bg-gold/10 px-4 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-gold transition-all hover:bg-gold hover:text-primary-foreground"
+                >
+                  Yes, End Session
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowEndConfirm(false)}
+                  className="px-4 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  Continue
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </header>
 

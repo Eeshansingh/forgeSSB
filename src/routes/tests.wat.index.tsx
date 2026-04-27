@@ -82,7 +82,7 @@ function WatModePage() {
         </p>
         <h1 className="mt-3 font-serif text-5xl text-foreground">Word Association Test</h1>
         <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-          A word appears. 15 seconds. Your first instinct is what the Board sees.
+          One word. Fifteen seconds. Sixty rounds.
         </p>
       </div>
 

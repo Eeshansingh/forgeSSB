@@ -113,36 +113,7 @@ function ResultsPage() {
   const candidateName = user?.email ?? "Anonymous";
 
   function downloadReport() {
-    const lines = [
-      "ForgeSSB SRT Report",
-      "===================",
-      `Candidate: ${candidateName}`,
-      `Date: ${new Date().toLocaleString()}`,
-      "",
-      "OLQ Scores",
-      "----------",
-      ...OLQS.map((olq) => `${olq}: ${scores[olq] ?? 0}`),
-      "",
-      "Pattern Analysis",
-      "----------------",
-      analysis.pattern_analysis,
-      "",
-      "Assessor Note",
-      "-------------",
-      analysis.assessor_note,
-      "",
-      "Response Log",
-      "------------",
-      ...responses.map((r, i) => `${i + 1}. ${r.situation} -> ${r.response || "[No response]"}`),
-      "",
-    ];
-    const blob = new Blob([lines.join("\n")], { type: "text/plain;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `forgessb-srt-full-report-${new Date().toISOString().slice(0, 10)}.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
+    window.print();
   }
 
   return (
@@ -267,7 +238,7 @@ function ResultsPage() {
       </div>
 
       {/* CTAs */}
-      <div className="mt-16 flex flex-col gap-3 border-t border-border pt-10 sm:flex-row sm:items-center sm:justify-center sm:gap-4">
+      <div className="print-hide mt-16 flex flex-col gap-3 border-t border-border pt-10 sm:flex-row sm:items-center sm:justify-center sm:gap-4">
         <button
           type="button"
           onClick={downloadReport}
@@ -285,7 +256,7 @@ function ResultsPage() {
         </Link>
       </div>
 
-      <LeaderboardTeaser testType="srt" userScore={overall} userRating={overallRating.label} />
+      <div className="print-hide"><LeaderboardTeaser testType="srt" userScore={overall} userRating={overallRating.label} /></div>
     </section>
   );
 }

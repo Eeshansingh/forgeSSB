@@ -1,14 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ModuleCard } from "@/components/ModuleCard";
 import { StarMark } from "@/components/StarMark";
-import {
-  Brain,
-  Image as ImageIcon,
-  AlertTriangle,
-  Users,
-  MessageSquare,
-  ScrollText,
-} from "lucide-react";
+import { Brain, AlertTriangle } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -92,56 +85,30 @@ function LandingPage() {
             </p>
             <h2 className="mt-3 font-serif text-4xl text-foreground">Assessment Modules</h2>
             <p className="mt-3 max-w-xl text-sm text-muted-foreground">
-              Six pillars of the Services Selection Board. Begin with the Word
-              Association Test — additional modules deploy in sequence.
+              Train under real SSB conditions. Full OLQ analysis after every simulation.
             </p>
           </div>
         </div>
 
-        <div className="grid gap-px bg-border sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-px bg-border sm:grid-cols-2">
           <ModuleCard
             name="Word Association Test"
             abbreviation="WAT"
-            description="60 words, 15 seconds each. The Board reads your first instinct."
+            description="One word. Fifteen seconds. Sixty rounds."
             icon={<Brain className="h-5 w-5" />}
             to="/tests/wat"
           />
           <ModuleCard
-            name="Thematic Apperception Test"
-            abbreviation="TAT"
-            description="Tell a story. Reveal your thinking."
-            icon={<ImageIcon className="h-5 w-5" />}
-            locked
-          />
-          <ModuleCard
             name="Situation Reaction Test"
             abbreviation="SRT"
-            description="60 situations, 30 seconds each. How you act defines your profile."
+            description="60 situations. 30 seconds each. How you react defines your profile."
             icon={<AlertTriangle className="h-5 w-5" />}
             to="/tests/srt"
           />
-          <ModuleCard
-            name="Group Testing Tasks"
-            abbreviation="GTO"
-            description="Lead, cooperate, solve. Your officer potential in action."
-            icon={<Users className="h-5 w-5" />}
-            locked
-          />
-          <ModuleCard
-            name="Personal Interview"
-            abbreviation="IO"
-            description="Who you are, why you want this, what you're made of."
-            icon={<MessageSquare className="h-5 w-5" />}
-            locked
-          />
-          <ModuleCard
-            name="Self Description"
-            abbreviation="SD"
-            description="How you see yourself matters as much as how others see you."
-            icon={<ScrollText className="h-5 w-5" />}
-            locked
-          />
         </div>
+        <p className="mt-6 font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground/60">
+          GTO Tasks · TAT · Personal Interview · Self Description — in development
+        </p>
       </section>
 
       {/* DOCTRINE */}
