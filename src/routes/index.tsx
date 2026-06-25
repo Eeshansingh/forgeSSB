@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ModuleCard } from "@/components/ModuleCard";
 import { StarMark } from "@/components/StarMark";
 import { Brain, AlertTriangle } from "lucide-react";
+import { JourneyCTA } from "@/components/JourneyCTA";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -55,16 +56,16 @@ function LandingPage() {
 
           <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row">
             <Link
-              to="/tests"
-              className="inline-flex items-center gap-2 border border-gold bg-gold/5 px-7 py-3.5 text-sm font-medium uppercase tracking-[0.18em] text-gold transition-all hover:bg-gold hover:text-primary-foreground"
+              to="/pricing"
+              className="inline-flex items-center gap-2 border border-gold bg-gold px-7 py-3.5 text-sm font-medium uppercase tracking-[0.18em] text-[#0A0E0A] transition-all hover:opacity-90"
             >
-              Begin Preparation →
+              Start 30-Day Journey — ₹300 →
             </Link>
             <Link
               to="/tests"
               className="inline-flex items-center gap-2 border border-border px-7 py-3.5 text-sm font-medium uppercase tracking-[0.18em] text-foreground/80 transition-all hover:border-foreground/40 hover:text-foreground"
             >
-              See All Modules
+              Try free first
             </Link>
           </div>
 
@@ -110,6 +111,9 @@ function LandingPage() {
           GTO Tasks · TAT · Personal Interview · Self Description — in development
         </p>
       </section>
+
+      {/* 30-DAY JOURNEY CTA */}
+      <JourneyCTA />
 
       {/* DOCTRINE */}
       <section className="border-t border-border/60 bg-surface-1/40">

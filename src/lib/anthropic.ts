@@ -148,3 +148,99 @@ export async function getFullTestAnalysis(
   const cleaned = raw.replace(/^```json\s*/i, "").replace(/```\s*$/i, "").trim();
   return JSON.parse(cleaned);
 }
+
+// ── BASELINE EVALUATION ───────────────────────────────────────────────────────
+
+const BASELINE_SYSTEM_PROMPT = `You are a senior SSB (Services Selection Board) psychologist and assessor for the Indian Armed Forces with 20+ years of experience evaluating officer candidates. You have been given a candidate's responses to a Day 1 baseline assessment designed to map all 15 Officer Like Qualities (OLQs).
+
+THE 15 OLQs — score each 0-100:
+1. Effective Intelligence — practical, applied thinking under real conditions
+2. Reasoning Ability — logical, cause-effect thinking; sound judgment
+3. Organising Ability — planning, structuring problems, delegating effectively
+4. Power of Expression — clarity, precision, and confidence in communication
+5. Social Adaptability — reading the room, adjusting to different people and environments
+6. Cooperation — genuinely supporting others, building team cohesion
+7. Sense of Responsibility — ownership, accountability, doing what needs to be done
+8. Initiative — self-starting, acting without being asked
+9. Self Confidence — conviction in own judgment, acting without constant validation
+10. Speed of Decision — making sound decisions quickly under pressure
+11. Ability to Influence Group — inspiring others, rallying a group behind a direction
+12. Liveliness — energy, enthusiasm, optimism that lifts others
+13. Determination — persistence through obstacles, not giving up
+14. Courage — moral and physical bravery; saying and doing difficult things
+15. Stamina & Fitness — resilience across sustained effort; mental endurance
+
+SCORING GUIDE:
+85-100: Clearly officer-like — shows consistently and authentically
+70-84: Present and developing — reliable under normal conditions
+55-69: Emerging — present but inconsistent
+40-54: Gap — underexpressed; the board will notice
+Below 40: Significant gap — requires focused work
+
+CRITICAL: The candidate responded to two layers:
+1. Multiple-choice scenarios (stated preferences — time to consider)
+2. Timed short responses (instinctive patterns — 30 seconds each)
+Where these conflict, WEIGHT THE TIMED RESPONSE MORE HEAVILY. Instinct beats intent.
+
+RESPONSE FORMAT — return ONLY valid JSON, no markdown, no backticks:
+{
+  "olq_scores": {
+    "Effective Intelligence": 0, "Reasoning Ability": 0, "Organising Ability": 0,
+    "Power of Expression": 0, "Social Adaptability": 0, "Cooperation": 0,
+    "Sense of Responsibility": 0, "Initiative": 0, "Self Confidence": 0,
+    "Speed of Decision": 0, "Ability to Influence Group": 0, "Liveliness": 0,
+    "Determination": 0, "Courage": 0, "Stamina & Fitness": 0
+  },
+  "patterns": ["2-3 specific observed behavioural patterns"],
+  "development_areas": ["exactly 2 strings: OLQ Name — one sentence on the gap"],
+  "composite": 0,
+  "report": "100-150 words to the candidate in second person, starting with Your responses suggest"
+}`;
+
+export type BaselineResult = {
+  olq_scores: Record<string, number>;
+  patterns: string[];
+  development_areas: string[];
+  composite: number;
+  report: string;
+};
+
+export async function evaluateBaseline(payload: {
+  mcq_answers: Array<{ question: string; chosen_option: string }>;
+  srt_responses: Array<{ prompt: string; response: string }>;
+  profile: { exam_type: string; attempt_number: number };
+}): Promise<BaselineResult> {
+  const mcqBlock = payload.mcq_answers
+    .map((a, i) => `${i + 1}. Situation: "${a.question}"\n   Chosen: "${a.chosen_option}"`)
+    .join("\n");
+
+  const srtBlock = payload.srt_responses
+    .map((a, i) => `${i + 1}. Prompt: "${a.prompt}"\n   Response: "${a.response || "[no response]"}"`)
+    .join("\n");
+
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "x-api-key": ANTHROPIC_API_KEY,
+      "anthropic-version": "2023-06-01",
+      "content-type": "application/json",
+      "anthropic-dangerous-direct-browser-access": "true",
+    },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-6",
+      max_tokens: 1500,
+      system: BASELINE_SYSTEM_PROMPT,
+      messages: [
+        {
+          role: "user",
+          content: `SCENARIO MCQ RESPONSES (10 situations):\n${mcqBlock}\n\nTIMED SHORT RESPONSES (30 seconds each):\n${srtBlock}\n\nCANDIDATE PROFILE: ${payload.profile.exam_type.toUpperCase()} preparation, attempt number ${payload.profile.attempt_number}`,
+        },
+      ],
+    }),
+  });
+
+  const data = (await res.json()) as { content: Array<{ text: string }> };
+  const raw = data.content[0].text;
+  const cleaned = raw.replace(/^```json\s*/i, "").replace(/```\s*$/i, "").trim();
+  return JSON.parse(cleaned) as BaselineResult;
+}

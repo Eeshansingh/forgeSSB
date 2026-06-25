@@ -3,9 +3,11 @@ import { useEffect, useState } from "react";
 import { OLQS, ratingFromScore } from "@/lib/wat-data";
 import { getSRTFullAnalysis } from "@/lib/srt-anthropic";
 import { supabase, updateTestAttempt, formatDisplayName } from "@/lib/supabase";
-import { ChevronDown, Download, RotateCcw } from "lucide-react";
+import { ChevronDown, Download, RotateCcw, Share2 } from "lucide-react";
+import { ShareModal } from "@/components/ShareModal";
 import { AnalysisLoading } from "@/components/AnalysisLoading";
 import { LeaderboardTeaser } from "@/components/LeaderboardTeaser";
+import { CourseUpsell } from "@/components/CourseUpsell";
 
 export const Route = createFileRoute("/tests/srt/full/results")({
   head: () => ({
@@ -31,6 +33,7 @@ type AuthUser = { email?: string | null } | null;
 
 function ResultsPage() {
   const [tableOpen, setTableOpen] = useState(true);
+  const [showShare, setShowShare] = useState(false);
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [responses, setResponses] = useState<SrtResponse[]>([]);
   const [loading, setLoading] = useState(false);
@@ -247,6 +250,14 @@ function ResultsPage() {
           <Download className="h-4 w-4" />
           Download Report
         </button>
+        <button
+          type="button"
+          onClick={() => setShowShare(true)}
+          className="inline-flex w-full items-center justify-center gap-3 border border-border px-7 py-3.5 text-sm font-medium uppercase tracking-[0.18em] text-foreground/80 transition-all hover:border-gold/50 hover:text-gold sm:w-auto"
+        >
+          <Share2 className="h-4 w-4" />
+          Share Score
+        </button>
         <Link
           to="/tests/srt/full/instructions"
           className="inline-flex w-full items-center justify-center gap-3 border border-border px-7 py-3.5 text-sm font-medium uppercase tracking-[0.18em] text-foreground/80 transition-all hover:border-foreground/40 hover:text-foreground sm:w-auto"
@@ -257,6 +268,19 @@ function ResultsPage() {
       </div>
 
       <div className="print-hide"><LeaderboardTeaser testType="srt" userScore={overall} userRating={overallRating.label} /></div>
+
+      <div className="print-hide mt-10">
+        <CourseUpsell lowestOlq={Object.entries(scores as Record<string, number>).sort((a, b) => a[1] - b[1])[0]?.[0]} />
+      </div>
+
+      {showShare && (
+        <ShareModal
+          testType="srt_full"
+          compositeScore={overall}
+          olqScores={scores as Record<string, number>}
+          onClose={() => setShowShare(false)}
+        />
+      )}
     </section>
   );
 }

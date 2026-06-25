@@ -5,7 +5,9 @@ import { getFullTestAnalysis } from "@/lib/anthropic";
 import { supabase, updateTestAttempt, formatDisplayName } from "@/lib/supabase";
 import { AnalysisLoading } from "@/components/AnalysisLoading";
 import { LeaderboardTeaser } from "@/components/LeaderboardTeaser";
-import { ChevronDown, Download, RotateCcw } from "lucide-react";
+import { CourseUpsell } from "@/components/CourseUpsell";
+import { ChevronDown, Download, RotateCcw, Share2 } from "lucide-react";
+import { ShareModal } from "@/components/ShareModal";
 
 export const Route = createFileRoute("/tests/wat/full/results")({
   head: () => ({
@@ -31,6 +33,7 @@ type AuthUser = { email?: string | null } | null;
 
 function ResultsPage() {
   const [tableOpen, setTableOpen] = useState(true);
+  const [showShare, setShowShare] = useState(false);
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [responses, setResponses] = useState<WatResponse[]>([]);
   const [loading, setLoading] = useState(false);
@@ -251,6 +254,14 @@ function ResultsPage() {
           <Download className="h-4 w-4" />
           Download Report
         </button>
+        <button
+          type="button"
+          onClick={() => setShowShare(true)}
+          className="inline-flex w-full items-center justify-center gap-3 border border-border px-7 py-3.5 text-sm font-medium uppercase tracking-[0.18em] text-foreground/80 transition-all hover:border-gold/50 hover:text-gold sm:w-auto"
+        >
+          <Share2 className="h-4 w-4" />
+          Share Score
+        </button>
         <Link
           to="/tests/wat"
           className="inline-flex w-full items-center justify-center gap-3 border border-border px-7 py-3.5 text-sm font-medium uppercase tracking-[0.18em] text-foreground/80 transition-all hover:border-foreground/40 hover:text-foreground sm:w-auto"
@@ -261,6 +272,19 @@ function ResultsPage() {
       </div>
 
       <div className="print-hide"><LeaderboardTeaser testType="wat" userScore={overall} userRating={overallRating.label} /></div>
+
+      <div className="print-hide mt-10">
+        <CourseUpsell lowestOlq={analysis ? Object.entries(analysis.olq_scores).sort((a, b) => a[1] - b[1])[0]?.[0] : undefined} />
+      </div>
+
+      {showShare && (
+        <ShareModal
+          testType="wat_full"
+          compositeScore={overall}
+          olqScores={scores as Record<string, number>}
+          onClose={() => setShowShare(false)}
+        />
+      )}
 
       {showFirstAttemptPrompt && !user && (
         <div className="print-hide mt-10 border border-gold/40 bg-surface-1/60 p-6 sm:p-7">

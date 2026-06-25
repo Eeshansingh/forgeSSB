@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { identifyUser } from './analytics'
+import type { SessionType } from './journey-content'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
@@ -159,11 +160,27 @@ export async function getJourneyProfile(user_id: string) {
 
 // SESSIONS
 
+type SessionStatus = 'not_started' | 'insight_complete' | 'practice_complete' | 'reflection_complete' | 'complete'
+
+export type SessionRow = {
+  id: string
+  user_id: string
+  session_number: number
+  cluster: string
+  olq_focus: string
+  session_type: SessionType
+  status: SessionStatus
+  practice_scores: Record<string, unknown> | null
+  ai_observation: string | null
+  completed_at: string | null
+}
+
 export async function createSession(data: {
   user_id: string
   session_number: number
   cluster: string
   olq_focus: string
+  session_type: SessionType
 }) {
   const { data: session, error } = await supabase
     .from('sessions')
@@ -171,14 +188,15 @@ export async function createSession(data: {
     .select()
     .single()
   if (error) throw error
-  return session
+  return session as SessionRow
 }
 
 export async function updateSessionStatus(
   user_id: string,
   session_number: number,
-  status: 'not_started' | 'insight_complete' | 'practice_complete' | 'reflection_complete' | 'complete',
+  status: SessionStatus,
   extras?: {
+    session_type?: SessionType
     practice_scores?: Record<string, unknown>
     ai_observation?: string
     completed_at?: string
@@ -192,10 +210,10 @@ export async function updateSessionStatus(
     .select()
     .single()
   if (error) throw error
-  return data
+  return data as SessionRow
 }
 
-export async function getSession(user_id: string, session_number: number) {
+export async function getSession(user_id: string, session_number: number): Promise<SessionRow | null> {
   const { data, error } = await supabase
     .from('sessions')
     .select('*')
@@ -203,17 +221,17 @@ export async function getSession(user_id: string, session_number: number) {
     .eq('session_number', session_number)
     .single()
   if (error && error.code !== 'PGRST116') throw error
-  return data
+  return data as SessionRow | null
 }
 
-export async function getAllSessions(user_id: string) {
+export async function getAllSessions(user_id: string): Promise<SessionRow[]> {
   const { data, error } = await supabase
     .from('sessions')
     .select('*')
     .eq('user_id', user_id)
     .order('session_number', { ascending: true })
   if (error) throw error
-  return data ?? []
+  return (data ?? []) as SessionRow[]
 }
 
 // WEAK FLAGGED ITEMS
@@ -263,7 +281,7 @@ export async function getReflections(user_id: string) {
 
 export async function saveTransferCheckin(data: {
   user_id: string
-  session_number: 14 | 21
+  session_number: 10 | 25
   answers: Record<string, unknown>
   ai_feedback?: string
 }) {
@@ -274,6 +292,76 @@ export async function saveTransferCheckin(data: {
     .single()
   if (error) throw error
   return checkin
+}
+
+// BASELINE SCORES (session 1 practice_scores = { [olq_name]: number })
+
+export async function getBaselineScores(user_id: string): Promise<Record<string, number> | null> {
+  const { data, error } = await supabase
+    .from('sessions')
+    .select('practice_scores')
+    .eq('user_id', user_id)
+    .eq('session_number', 1)
+    .single()
+  if (error && error.code !== 'PGRST116') throw error
+  const ps = data?.practice_scores
+  if (!ps || typeof ps !== 'object' || Array.isArray(ps)) return null
+  return ps as Record<string, number>
+}
+
+// LEADERBOARD RANK
+
+export async function getUserRank(user_id: string): Promise<{ rank: number; total: number } | null> {
+  const { data, error } = await supabase
+    .rpc('get_user_rank', { p_user_id: user_id })
+  if (error) {
+    console.warn('[getUserRank]', error.message)
+    return null
+  }
+  if (!data || data.length === 0) return null
+  const row = data[0] as { rank: bigint | number | null; total: bigint | number | null }
+  if (row.rank == null || row.total == null) return null
+  return { rank: Number(row.rank), total: Number(row.total) }
+}
+
+// PURCHASES
+
+export type PurchasePlan = 'practice' | 'journey'
+
+export async function getUserPurchase(user_id: string): Promise<PurchasePlan | null> {
+  const { data, error } = await supabase
+    .from('purchases')
+    .select('plan')
+    .eq('user_id', user_id)
+    .eq('status', 'active')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+  if (error) {
+    console.warn('[getUserPurchase]', error.message)
+    return null
+  }
+  return (data?.plan as PurchasePlan) ?? null
+}
+
+// Convenience: does user have access to the 30-day journey?
+export async function hasJourneyAccess(user_id: string): Promise<boolean> {
+  const plan = await getUserPurchase(user_id)
+  return plan === 'journey'
+}
+
+// Write a purchase row after successful Razorpay payment
+export async function recordPurchase(data: {
+  user_id: string
+  plan: PurchasePlan
+  amount_paise: number
+  razorpay_order_id: string
+  razorpay_payment_id: string
+}) {
+  const { error } = await supabase
+    .from('purchases')
+    .insert({ ...data, status: 'active' })
+  if (error) throw error
 }
 
 // SSB OUTCOMES

@@ -4,7 +4,8 @@ import { getSRTFullAnalysis } from "@/lib/srt-anthropic";
 import { OLQS, ratingFromScore } from "@/lib/wat-data";
 import { SRT_SITUATIONS } from "@/lib/srt-data";
 import { getTestAttempts, recordTestAttempt, signInWithGoogle, supabase, updateTestAttempt } from "@/lib/supabase";
-import { ChevronDown, Download, RotateCcw } from "lucide-react";
+import { ChevronDown, Download, RotateCcw, Share2 } from "lucide-react";
+import { ShareModal } from "@/components/ShareModal";
 import { AnalysisLoading } from "@/components/AnalysisLoading";
 import { LeaderboardTeaser } from "@/components/LeaderboardTeaser";
 import { ADMIN_EMAILS, canTakeTest } from '../lib/auth'
@@ -70,6 +71,7 @@ function PracticePage() {
 
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [tableOpen, setTableOpen] = useState(true);
+  const [showShare, setShowShare] = useState(false);
   const [loadingAnalysis, setLoadingAnalysis] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -687,6 +689,14 @@ function PracticePage() {
           <Download className="h-4 w-4" />
           Download Report
         </button>
+        <button
+          type="button"
+          onClick={() => setShowShare(true)}
+          className="inline-flex w-full items-center justify-center gap-3 border border-border px-7 py-3.5 text-sm font-medium uppercase tracking-[0.18em] text-foreground/80 transition-all hover:border-gold/50 hover:text-gold sm:w-auto"
+        >
+          <Share2 className="h-4 w-4" />
+          Share Score
+        </button>
         <Link
           to="/tests/srt"
           className="inline-flex w-full items-center justify-center gap-3 border border-border px-7 py-3.5 text-sm font-medium uppercase tracking-[0.18em] text-foreground/80 transition-all hover:border-foreground/40 hover:text-foreground sm:w-auto"
@@ -696,6 +706,14 @@ function PracticePage() {
         </Link>
       </div>
       <div className="print-hide"><LeaderboardTeaser testType="srt" userScore={overall} userRating={overallRating.label} practice /></div>
+      {showShare && (
+        <ShareModal
+          testType="srt_practice"
+          compositeScore={overall}
+          olqScores={scores as Record<string, number>}
+          onClose={() => setShowShare(false)}
+        />
+      )}
       {showFirstAttemptPrompt && !user && (
         <div className="mt-10 border border-gold/40 bg-surface-1/60 p-6 sm:p-7">
           <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-gold">Recommendation</p>

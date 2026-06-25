@@ -10,17 +10,22 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TestsRouteImport } from './routes/tests'
+import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
+import { Route as JourneyRouteImport } from './routes/journey'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TestsIndexRouteImport } from './routes/tests.index'
 import { Route as LeaderboardIndexRouteImport } from './routes/leaderboard.index'
 import { Route as LeaderboardWatRouteImport } from './routes/leaderboard.wat'
 import { Route as LeaderboardSrtRouteImport } from './routes/leaderboard.srt'
 import { Route as LeaderboardGlobalRouteImport } from './routes/leaderboard.global'
+import { Route as JourneyOnboardingRouteImport } from './routes/journey.onboarding'
+import { Route as JourneyDashboardRouteImport } from './routes/journey.dashboard'
 import { Route as TestsWatIndexRouteImport } from './routes/tests.wat.index'
 import { Route as TestsSrtIndexRouteImport } from './routes/tests.srt.index'
 import { Route as TestsWatPracticeRouteImport } from './routes/tests.wat.practice'
 import { Route as TestsSrtPracticeRouteImport } from './routes/tests.srt.practice'
+import { Route as JourneySessionSessionNumberRouteImport } from './routes/journey.session.$sessionNumber'
 import { Route as TestsWatFullTestRouteImport } from './routes/tests.wat.full.test'
 import { Route as TestsWatFullSetupRouteImport } from './routes/tests.wat.full.setup'
 import { Route as TestsWatFullResultsRouteImport } from './routes/tests.wat.full.results'
@@ -35,9 +40,19 @@ const TestsRoute = TestsRouteImport.update({
   path: '/tests',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LeaderboardRoute = LeaderboardRouteImport.update({
   id: '/leaderboard',
   path: '/leaderboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JourneyRoute = JourneyRouteImport.update({
+  id: '/journey',
+  path: '/journey',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -70,6 +85,16 @@ const LeaderboardGlobalRoute = LeaderboardGlobalRouteImport.update({
   path: '/global',
   getParentRoute: () => LeaderboardRoute,
 } as any)
+const JourneyOnboardingRoute = JourneyOnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => JourneyRoute,
+} as any)
+const JourneyDashboardRoute = JourneyDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => JourneyRoute,
+} as any)
 const TestsWatIndexRoute = TestsWatIndexRouteImport.update({
   id: '/wat/',
   path: '/wat/',
@@ -90,6 +115,12 @@ const TestsSrtPracticeRoute = TestsSrtPracticeRouteImport.update({
   path: '/srt/practice',
   getParentRoute: () => TestsRoute,
 } as any)
+const JourneySessionSessionNumberRoute =
+  JourneySessionSessionNumberRouteImport.update({
+    id: '/session/$sessionNumber',
+    path: '/session/$sessionNumber',
+    getParentRoute: () => JourneyRoute,
+  } as any)
 const TestsWatFullTestRoute = TestsWatFullTestRouteImport.update({
   id: '/wat/full/test',
   path: '/wat/full/test',
@@ -135,13 +166,18 @@ const TestsSrtFullInstructionsRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/journey': typeof JourneyRouteWithChildren
   '/leaderboard': typeof LeaderboardRouteWithChildren
+  '/pricing': typeof PricingRoute
   '/tests': typeof TestsRouteWithChildren
+  '/journey/dashboard': typeof JourneyDashboardRoute
+  '/journey/onboarding': typeof JourneyOnboardingRoute
   '/leaderboard/global': typeof LeaderboardGlobalRoute
   '/leaderboard/srt': typeof LeaderboardSrtRoute
   '/leaderboard/wat': typeof LeaderboardWatRoute
   '/leaderboard/': typeof LeaderboardIndexRoute
   '/tests/': typeof TestsIndexRoute
+  '/journey/session/$sessionNumber': typeof JourneySessionSessionNumberRoute
   '/tests/srt/practice': typeof TestsSrtPracticeRoute
   '/tests/wat/practice': typeof TestsWatPracticeRoute
   '/tests/srt/': typeof TestsSrtIndexRoute
@@ -157,11 +193,16 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/journey': typeof JourneyRouteWithChildren
+  '/pricing': typeof PricingRoute
+  '/journey/dashboard': typeof JourneyDashboardRoute
+  '/journey/onboarding': typeof JourneyOnboardingRoute
   '/leaderboard/global': typeof LeaderboardGlobalRoute
   '/leaderboard/srt': typeof LeaderboardSrtRoute
   '/leaderboard/wat': typeof LeaderboardWatRoute
   '/leaderboard': typeof LeaderboardIndexRoute
   '/tests': typeof TestsIndexRoute
+  '/journey/session/$sessionNumber': typeof JourneySessionSessionNumberRoute
   '/tests/srt/practice': typeof TestsSrtPracticeRoute
   '/tests/wat/practice': typeof TestsWatPracticeRoute
   '/tests/srt': typeof TestsSrtIndexRoute
@@ -178,13 +219,18 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/journey': typeof JourneyRouteWithChildren
   '/leaderboard': typeof LeaderboardRouteWithChildren
+  '/pricing': typeof PricingRoute
   '/tests': typeof TestsRouteWithChildren
+  '/journey/dashboard': typeof JourneyDashboardRoute
+  '/journey/onboarding': typeof JourneyOnboardingRoute
   '/leaderboard/global': typeof LeaderboardGlobalRoute
   '/leaderboard/srt': typeof LeaderboardSrtRoute
   '/leaderboard/wat': typeof LeaderboardWatRoute
   '/leaderboard/': typeof LeaderboardIndexRoute
   '/tests/': typeof TestsIndexRoute
+  '/journey/session/$sessionNumber': typeof JourneySessionSessionNumberRoute
   '/tests/srt/practice': typeof TestsSrtPracticeRoute
   '/tests/wat/practice': typeof TestsWatPracticeRoute
   '/tests/srt/': typeof TestsSrtIndexRoute
@@ -202,13 +248,18 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/journey'
     | '/leaderboard'
+    | '/pricing'
     | '/tests'
+    | '/journey/dashboard'
+    | '/journey/onboarding'
     | '/leaderboard/global'
     | '/leaderboard/srt'
     | '/leaderboard/wat'
     | '/leaderboard/'
     | '/tests/'
+    | '/journey/session/$sessionNumber'
     | '/tests/srt/practice'
     | '/tests/wat/practice'
     | '/tests/srt/'
@@ -224,11 +275,16 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/journey'
+    | '/pricing'
+    | '/journey/dashboard'
+    | '/journey/onboarding'
     | '/leaderboard/global'
     | '/leaderboard/srt'
     | '/leaderboard/wat'
     | '/leaderboard'
     | '/tests'
+    | '/journey/session/$sessionNumber'
     | '/tests/srt/practice'
     | '/tests/wat/practice'
     | '/tests/srt'
@@ -244,13 +300,18 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/journey'
     | '/leaderboard'
+    | '/pricing'
     | '/tests'
+    | '/journey/dashboard'
+    | '/journey/onboarding'
     | '/leaderboard/global'
     | '/leaderboard/srt'
     | '/leaderboard/wat'
     | '/leaderboard/'
     | '/tests/'
+    | '/journey/session/$sessionNumber'
     | '/tests/srt/practice'
     | '/tests/wat/practice'
     | '/tests/srt/'
@@ -267,7 +328,9 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  JourneyRoute: typeof JourneyRouteWithChildren
   LeaderboardRoute: typeof LeaderboardRouteWithChildren
+  PricingRoute: typeof PricingRoute
   TestsRoute: typeof TestsRouteWithChildren
 }
 
@@ -280,11 +343,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TestsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/leaderboard': {
       id: '/leaderboard'
       path: '/leaderboard'
       fullPath: '/leaderboard'
       preLoaderRoute: typeof LeaderboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/journey': {
+      id: '/journey'
+      path: '/journey'
+      fullPath: '/journey'
+      preLoaderRoute: typeof JourneyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -329,6 +406,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LeaderboardGlobalRouteImport
       parentRoute: typeof LeaderboardRoute
     }
+    '/journey/onboarding': {
+      id: '/journey/onboarding'
+      path: '/onboarding'
+      fullPath: '/journey/onboarding'
+      preLoaderRoute: typeof JourneyOnboardingRouteImport
+      parentRoute: typeof JourneyRoute
+    }
+    '/journey/dashboard': {
+      id: '/journey/dashboard'
+      path: '/dashboard'
+      fullPath: '/journey/dashboard'
+      preLoaderRoute: typeof JourneyDashboardRouteImport
+      parentRoute: typeof JourneyRoute
+    }
     '/tests/wat/': {
       id: '/tests/wat/'
       path: '/wat'
@@ -356,6 +447,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/tests/srt/practice'
       preLoaderRoute: typeof TestsSrtPracticeRouteImport
       parentRoute: typeof TestsRoute
+    }
+    '/journey/session/$sessionNumber': {
+      id: '/journey/session/$sessionNumber'
+      path: '/session/$sessionNumber'
+      fullPath: '/journey/session/$sessionNumber'
+      preLoaderRoute: typeof JourneySessionSessionNumberRouteImport
+      parentRoute: typeof JourneyRoute
     }
     '/tests/wat/full/test': {
       id: '/tests/wat/full/test'
@@ -416,6 +514,21 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface JourneyRouteChildren {
+  JourneyDashboardRoute: typeof JourneyDashboardRoute
+  JourneyOnboardingRoute: typeof JourneyOnboardingRoute
+  JourneySessionSessionNumberRoute: typeof JourneySessionSessionNumberRoute
+}
+
+const JourneyRouteChildren: JourneyRouteChildren = {
+  JourneyDashboardRoute: JourneyDashboardRoute,
+  JourneyOnboardingRoute: JourneyOnboardingRoute,
+  JourneySessionSessionNumberRoute: JourneySessionSessionNumberRoute,
+}
+
+const JourneyRouteWithChildren =
+  JourneyRoute._addFileChildren(JourneyRouteChildren)
+
 interface LeaderboardRouteChildren {
   LeaderboardGlobalRoute: typeof LeaderboardGlobalRoute
   LeaderboardSrtRoute: typeof LeaderboardSrtRoute
@@ -470,7 +583,9 @@ const TestsRouteWithChildren = TestsRoute._addFileChildren(TestsRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  JourneyRoute: JourneyRouteWithChildren,
   LeaderboardRoute: LeaderboardRouteWithChildren,
+  PricingRoute: PricingRoute,
   TestsRoute: TestsRouteWithChildren,
 }
 export const routeTree = rootRouteImport
