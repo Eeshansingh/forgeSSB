@@ -30,6 +30,9 @@ export const OLQS = [
 
 export type Olq = (typeof OLQS)[number];
 
+// Fixed baseline used as the "average aspirant" radar overlay on results pages.
+export const AVG_ASPIRANT_OLQ_SCORE = 60;
+
 export function ratingFromScore(score: number): {
   label: "Excellent" | "Good" | "Developing" | "Needs Work";
   tone: string;

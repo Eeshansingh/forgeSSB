@@ -74,15 +74,41 @@ Return ONLY valid JSON with no markdown, no backticks, no preamble. Raw JSON onl
     "Stamina": 71
   },
   "pattern_analysis": "3 paragraphs separated by double newline. Identify dominant themes and quote specific responses.",
-  "improvement_areas": [
+  "top_pattern": {
+    "title": "short name for the single most important pattern (e.g. 'You hedge under time pressure')",
+    "body": "1-2 sentences explaining the pattern",
+    "evidence": [
+      {
+        "ctx": "e.g. WAT · \\"DECIDE\\"",
+        "quote": "verbatim response text, copied exactly from the candidate's responses above",
+        "read": "one sentence on how an assessor reads this response"
+      }
+    ],
+    "rewrites": [
+      {
+        "weak": "verbatim or near-verbatim weak phrasing pulled from the candidate's own responses",
+        "strong": "a stronger alternative phrasing for the same idea"
+      }
+    ]
+  },
+  "other_patterns": [
     {
-      "area": "specific OLQ or behaviour",
-      "current_pattern": "what they are doing now",
-      "recommendation": "concrete actionable guidance"
+      "title": "short pattern name",
+      "body": "1-2 sentences describing the pattern",
+      "means": "one concrete, specific next step",
+      "tone": "strength or gap — use exactly one of these two words"
     }
   ],
   "assessor_note": "2-3 sentences speaking directly to the candidate."
-}`;
+}
+
+top_pattern must include exactly 2 evidence items and exactly 2 rewrites. other_patterns must include exactly 3 items. Evidence quotes and rewrite "weak" text must be copied verbatim from the candidate's actual responses provided below — never invent a response they did not give.
+
+Voice rules for top_pattern, other_patterns, and assessor_note:
+- Describe the response, not the person. Say "this response avoids owning the decision," never "you avoid owning decisions."
+- Never use: officer-grade, the board, the assessor flags, reads as a candidate who.
+- Be specific, not encouraging. Quantify where possible.
+- No pressure or urgency in tone.`;
 
 export async function getPracticeFeedback(word: string, response: string) {
   const res = await fetch("https://api.anthropic.com/v1/messages", {

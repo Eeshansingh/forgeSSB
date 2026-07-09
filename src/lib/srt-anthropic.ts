@@ -37,9 +37,29 @@ Score each of the 15 OLQs 0-100. Return ONLY valid JSON, no markdown, no backtic
   "summary": "3-4 sentences on overall SRT performance with specific examples",
   "olq_scores": {"Effective Intelligence": 75, "Reasoning Ability": 80, "Organising Ability": 70, "Power of Expression": 65, "Social Adaptability": 78, "Cooperation": 82, "Sense of Responsibility": 88, "Initiative": 60, "Self Confidence": 72, "Speed of Decision": 55, "Ability to Influence": 68, "Liveliness": 74, "Determination": 85, "Courage": 79, "Stamina": 71},
   "pattern_analysis": "3 paragraphs separated by double newline identifying key behavioral patterns",
-  "improvement_areas": [{"area": "specific OLQ", "current_pattern": "what they do", "recommendation": "concrete advice"}],
+  "top_pattern": {
+    "title": "short name for the single most important pattern (e.g. 'You seek permission before acting')",
+    "body": "1-2 sentences explaining the pattern",
+    "evidence": [
+      {"ctx": "e.g. SRT · group stuck, deadline near", "quote": "verbatim response text, copied exactly from the candidate's responses above", "read": "one sentence on how an assessor reads this response"}
+    ],
+    "rewrites": [
+      {"weak": "verbatim or near-verbatim weak phrasing pulled from the candidate's own responses", "strong": "a stronger alternative phrasing for the same idea"}
+    ]
+  },
+  "other_patterns": [
+    {"title": "short pattern name", "body": "1-2 sentences describing the pattern", "means": "one concrete, specific next step", "tone": "strength or gap — use exactly one of these two words"}
+  ],
   "assessor_note": "2-3 sentences speaking directly to the candidate"
-}`;
+}
+
+top_pattern must include exactly 2 evidence items and exactly 2 rewrites. other_patterns must include exactly 3 items. Evidence quotes and rewrite "weak" text must be copied verbatim from the candidate's actual responses provided below — never invent a response they did not give.
+
+Voice rules for top_pattern, other_patterns, and assessor_note:
+- Describe the response, not the person. Say "this response avoids owning the decision," never "you avoid owning decisions."
+- Never use: officer-grade, the board, the assessor flags, reads as a candidate who.
+- Be specific, not encouraging. Quantify where possible.
+- No pressure or urgency in tone.`;
 
 export async function getSRTPracticeFeedback(situation: string, response: string) {
   const res = await fetch("https://api.anthropic.com/v1/messages", {

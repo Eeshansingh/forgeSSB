@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
-import { toPng } from "html-to-image";
 import { Download, Share2, X } from "lucide-react";
 import { ShareCard, type ShareTestType } from "./ShareCard";
+import { downloadDataUrl, formatShareDate, generateCardPng, shareOrDownloadDataUrl, supportsNativeShare } from "@/lib/share-image";
 
 type Props = {
   testType: ShareTestType;
@@ -10,12 +10,6 @@ type Props = {
   onClose: () => void;
 };
 
-function formatDate(): string {
-  return new Date()
-    .toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })
-    .toUpperCase();
-}
-
 const CARD_SIZE = 1080;
 const PREVIEW_SIZE = 324; // exactly 30% of 1080
 
@@ -23,25 +17,17 @@ export function ShareModal({ testType, compositeScore, olqScores, onClose }: Pro
   const cardRef = useRef<HTMLDivElement>(null);
   const [generating, setGenerating] = useState(false);
   const [genError, setGenError] = useState<string | null>(null);
-  const date = formatDate();
+  const date = formatShareDate();
   const scale = PREVIEW_SIZE / CARD_SIZE;
   const filename = `forgessb-${testType.replace("_", "-")}-score.png`;
-
-  async function generatePng(): Promise<string> {
-    await document.fonts.ready;
-    if (!cardRef.current) throw new Error("Card not ready");
-    return toPng(cardRef.current, { pixelRatio: 2, cacheBust: true });
-  }
 
   async function handleDownload() {
     setGenerating(true);
     setGenError(null);
     try {
-      const dataUrl = await generatePng();
-      const a = document.createElement("a");
-      a.href = dataUrl;
-      a.download = filename;
-      a.click();
+      if (!cardRef.current) throw new Error("Card not ready");
+      const dataUrl = await generateCardPng(cardRef.current);
+      downloadDataUrl(dataUrl, filename);
     } catch {
       setGenError("Could not generate image. Please try again.");
     } finally {
@@ -53,22 +39,9 @@ export function ShareModal({ testType, compositeScore, olqScores, onClose }: Pro
     setGenerating(true);
     setGenError(null);
     try {
-      const dataUrl = await generatePng();
-      const res = await fetch(dataUrl);
-      const blob = await res.blob();
-      const file = new File([blob], filename, { type: "image/png" });
-      if (
-        navigator.share &&
-        navigator.canShare &&
-        navigator.canShare({ files: [file] })
-      ) {
-        await navigator.share({ files: [file], title: "My ForgeSSB Score" });
-      } else {
-        const a = document.createElement("a");
-        a.href = dataUrl;
-        a.download = filename;
-        a.click();
-      }
+      if (!cardRef.current) throw new Error("Card not ready");
+      const dataUrl = await generateCardPng(cardRef.current);
+      await shareOrDownloadDataUrl(dataUrl, filename, "My ForgeSSB Score");
     } catch (e) {
       if ((e as Error).name !== "AbortError") {
         setGenError("Share failed. Try downloading instead.");
@@ -78,8 +51,7 @@ export function ShareModal({ testType, compositeScore, olqScores, onClose }: Pro
     }
   }
 
-  const supportsShare =
-    typeof navigator !== "undefined" && typeof navigator.share === "function";
+  const supportsShare = supportsNativeShare;
 
   return (
     <>
