@@ -208,6 +208,7 @@ function DashboardPage() {
   const goToSession = (n: number) => void navigate({ to: `/journey/session/${n}` } as never);
   const goToReveal = () => void navigate({ to: "/journey/reveal" } as never);
   const goPractice = () => setTab("practice");
+  const goDrill = (olq: string) => void navigate({ to: "/tests/drill", search: { olq } } as never);
 
   function handleTabChange(next: DashboardTab) {
     setTab(next);
@@ -265,7 +266,7 @@ function DashboardPage() {
           error={insightsError}
           insights={insights}
           notEnoughData={reflectionCount === 0}
-          onGoPractice={goPractice}
+          onDrill={goDrill}
         />
       );
     }

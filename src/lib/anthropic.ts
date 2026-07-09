@@ -31,6 +31,7 @@ Return ONLY valid JSON with no markdown, no backticks, no preamble. Raw JSON onl
 {
   "word": "the stimulus word",
   "response": "candidate's response verbatim",
+  "score": 7,
   "analysis": "2-3 sentences about what this response reveals.",
   "olqs_demonstrated": [
     {
@@ -42,7 +43,9 @@ Return ONLY valid JSON with no markdown, no backticks, no preamble. Raw JSON onl
   "missed_opportunity": "1-2 sentences on missed OLQs.",
   "improved_response": "A model response for this word.",
   "coaching_note": "1 direct sentence of coaching advice."
-}`;
+}
+
+"score" is an integer 0-10 rating the overall quality of this single response.`;
 
 const FULL_TEST_SYSTEM_PROMPT = `You are an expert SSB (Services Selection Board) psychologist and senior assessor with 20+ years evaluating Indian Armed Forces officer candidates. You are analysing a candidate's complete Word Association Test (WAT) submission.
 
@@ -110,7 +113,10 @@ Voice rules for top_pattern, other_patterns, and assessor_note:
 - Be specific, not encouraging. Quantify where possible.
 - No pressure or urgency in tone.`;
 
-export async function getPracticeFeedback(word: string, response: string) {
+export async function getPracticeFeedback(word: string, response: string, targetOlq?: string) {
+  const targetLine = targetOlq
+    ? `\nThis rep is targeting the "${targetOlq}" quality specifically — weight your "analysis", "olqs_demonstrated" ordering, and "coaching_note" toward how well this response demonstrates ${targetOlq}.`
+    : "";
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
@@ -126,7 +132,7 @@ export async function getPracticeFeedback(word: string, response: string) {
       messages: [
         {
           role: "user",
-          content: `Stimulus word: "${word}"\nCandidate response: "${response}"`,
+          content: `Stimulus word: "${word}"\nCandidate response: "${response}"${targetLine}`,
         },
       ],
     }),

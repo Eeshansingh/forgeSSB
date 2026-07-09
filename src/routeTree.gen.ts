@@ -16,6 +16,7 @@ import { Route as JourneyRouteImport } from './routes/journey'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TestsIndexRouteImport } from './routes/tests.index'
 import { Route as LeaderboardIndexRouteImport } from './routes/leaderboard.index'
+import { Route as TestsDrillRouteImport } from './routes/tests.drill'
 import { Route as LeaderboardWatRouteImport } from './routes/leaderboard.wat'
 import { Route as LeaderboardSrtRouteImport } from './routes/leaderboard.srt'
 import { Route as LeaderboardGlobalRouteImport } from './routes/leaderboard.global'
@@ -70,6 +71,11 @@ const LeaderboardIndexRoute = LeaderboardIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => LeaderboardRoute,
+} as any)
+const TestsDrillRoute = TestsDrillRouteImport.update({
+  id: '/drill',
+  path: '/drill',
+  getParentRoute: () => TestsRoute,
 } as any)
 const LeaderboardWatRoute = LeaderboardWatRouteImport.update({
   id: '/wat',
@@ -182,6 +188,7 @@ export interface FileRoutesByFullPath {
   '/leaderboard/global': typeof LeaderboardGlobalRoute
   '/leaderboard/srt': typeof LeaderboardSrtRoute
   '/leaderboard/wat': typeof LeaderboardWatRoute
+  '/tests/drill': typeof TestsDrillRoute
   '/leaderboard/': typeof LeaderboardIndexRoute
   '/tests/': typeof TestsIndexRoute
   '/journey/session/$sessionNumber': typeof JourneySessionSessionNumberRoute
@@ -208,6 +215,7 @@ export interface FileRoutesByTo {
   '/leaderboard/global': typeof LeaderboardGlobalRoute
   '/leaderboard/srt': typeof LeaderboardSrtRoute
   '/leaderboard/wat': typeof LeaderboardWatRoute
+  '/tests/drill': typeof TestsDrillRoute
   '/leaderboard': typeof LeaderboardIndexRoute
   '/tests': typeof TestsIndexRoute
   '/journey/session/$sessionNumber': typeof JourneySessionSessionNumberRoute
@@ -237,6 +245,7 @@ export interface FileRoutesById {
   '/leaderboard/global': typeof LeaderboardGlobalRoute
   '/leaderboard/srt': typeof LeaderboardSrtRoute
   '/leaderboard/wat': typeof LeaderboardWatRoute
+  '/tests/drill': typeof TestsDrillRoute
   '/leaderboard/': typeof LeaderboardIndexRoute
   '/tests/': typeof TestsIndexRoute
   '/journey/session/$sessionNumber': typeof JourneySessionSessionNumberRoute
@@ -267,6 +276,7 @@ export interface FileRouteTypes {
     | '/leaderboard/global'
     | '/leaderboard/srt'
     | '/leaderboard/wat'
+    | '/tests/drill'
     | '/leaderboard/'
     | '/tests/'
     | '/journey/session/$sessionNumber'
@@ -293,6 +303,7 @@ export interface FileRouteTypes {
     | '/leaderboard/global'
     | '/leaderboard/srt'
     | '/leaderboard/wat'
+    | '/tests/drill'
     | '/leaderboard'
     | '/tests'
     | '/journey/session/$sessionNumber'
@@ -321,6 +332,7 @@ export interface FileRouteTypes {
     | '/leaderboard/global'
     | '/leaderboard/srt'
     | '/leaderboard/wat'
+    | '/tests/drill'
     | '/leaderboard/'
     | '/tests/'
     | '/journey/session/$sessionNumber'
@@ -396,6 +408,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/leaderboard/'
       preLoaderRoute: typeof LeaderboardIndexRouteImport
       parentRoute: typeof LeaderboardRoute
+    }
+    '/tests/drill': {
+      id: '/tests/drill'
+      path: '/drill'
+      fullPath: '/tests/drill'
+      preLoaderRoute: typeof TestsDrillRouteImport
+      parentRoute: typeof TestsRoute
     }
     '/leaderboard/wat': {
       id: '/leaderboard/wat'
@@ -569,6 +588,7 @@ const LeaderboardRouteWithChildren = LeaderboardRoute._addFileChildren(
 )
 
 interface TestsRouteChildren {
+  TestsDrillRoute: typeof TestsDrillRoute
   TestsIndexRoute: typeof TestsIndexRoute
   TestsSrtPracticeRoute: typeof TestsSrtPracticeRoute
   TestsWatPracticeRoute: typeof TestsWatPracticeRoute
@@ -585,6 +605,7 @@ interface TestsRouteChildren {
 }
 
 const TestsRouteChildren: TestsRouteChildren = {
+  TestsDrillRoute: TestsDrillRoute,
   TestsIndexRoute: TestsIndexRoute,
   TestsSrtPracticeRoute: TestsSrtPracticeRoute,
   TestsWatPracticeRoute: TestsWatPracticeRoute,

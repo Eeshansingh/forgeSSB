@@ -6,10 +6,10 @@ type Props = {
   error: string | null;
   insights: JourneyInsights | null;
   notEnoughData: boolean;
-  onGoPractice: () => void;
+  onDrill: (olq: string) => void;
 };
 
-export function InsightsTab({ loading, error, insights, notEnoughData, onGoPractice }: Props) {
+export function InsightsTab({ loading, error, insights, notEnoughData, onDrill }: Props) {
   if (notEnoughData) {
     return (
       <div>
@@ -49,7 +49,7 @@ export function InsightsTab({ loading, error, insights, notEnoughData, onGoPract
 
       <div className="mb-5 flex flex-col gap-2.5">
         {insights.focus_areas.map((f, i) => (
-          <FocusAreaCard key={f.olq} f={f} index={i} onDrill={onGoPractice} />
+          <FocusAreaCard key={f.olq} f={f} index={i} onDrill={() => onDrill(f.olq)} />
         ))}
       </div>
 
@@ -156,7 +156,7 @@ function FocusAreaCard({ f, index, onDrill }: { f: JourneyInsights["focus_areas"
           <p className="mb-4 text-[13px] leading-relaxed text-foreground">{f.plan}</p>
 
           <button type="button" onClick={onDrill} className="inline-flex items-center gap-2 bg-gold px-4.5 py-3 font-mono text-[10px] uppercase tracking-[0.16em] text-[#0A0E0A]">
-            Practice {f.olq} →
+            Drill {f.olq} →
           </button>
         </div>
       )}

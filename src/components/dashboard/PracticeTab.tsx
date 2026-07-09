@@ -73,22 +73,27 @@ export function PracticeTab({ olqScores }: Props) {
         </Link>
       </div>
 
-      {/* All 15 OLQs — informational */}
+      {/* All 15 OLQs — tap to launch a targeted Drill */}
       <div className="mb-2.5 flex items-baseline justify-between">
         <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-muted-foreground">Your 15 qualities</p>
         <span className="font-mono text-[9px] text-muted-foreground">weakest first</span>
       </div>
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-        {sorted.map((o) => (
-          <div key={o.name} className="flex items-center justify-between border border-border px-3.5 py-3">
+        {sorted.map((o, i) => (
+          <Link
+            key={o.name}
+            to="/tests/drill"
+            search={{ olq: o.name }}
+            className={`flex items-center justify-between border px-3.5 py-3 no-underline transition-colors ${
+              i < 3 ? "border-gold/50 hover:border-gold" : "border-border hover:border-gold/40"
+            }`}
+          >
             <span className="text-xs text-foreground">{o.name}</span>
-            <span className="font-serif text-base font-bold text-foreground">{o.score}</span>
-          </div>
+            <span className={`font-serif text-base font-bold ${i < 3 ? "text-gold" : "text-foreground"}`}>{o.score}</span>
+          </Link>
         ))}
       </div>
-      <p className="mt-3 font-mono text-[9px] text-muted-foreground">
-        Target drills for a specific quality — <span className="text-gold">coming with Mix mode</span>
-      </p>
+      <p className="mt-3 font-mono text-[9px] text-muted-foreground">Tap a quality to start a targeted drill</p>
     </div>
   );
 }

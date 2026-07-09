@@ -13,6 +13,7 @@ import { JOURNEY } from "@/lib/journey-content";
 import type { JourneySession, Profile } from "@/lib/journey-content";
 import { evaluateBaseline } from "@/lib/anthropic";
 import type { BaselineResult } from "@/lib/anthropic";
+import { OLQ_WAT_WORDS } from "@/lib/wat-data";
 
 export const Route = createFileRoute("/journey/session/$sessionNumber")({
   head: () => ({
@@ -251,24 +252,6 @@ const SRT_QUESTIONS = [
   "A friend makes a serious mistake in front of others. No one says anything. What do you do?",
   "Name the quality you know you need to work on most for SSB. In one sentence, say why — be specific.",
 ];
-
-const OLQ_WAT_WORDS: Record<string, string[]> = {
-  "Self Confidence":            ["DECIDE", "STAND", "OWN", "COMMIT", "SPEAK"],
-  "Speed of Decision":          ["NOW", "CHOOSE", "FAST", "CALL", "MOMENT"],
-  "Initiative":                 ["LEAD", "FIRST", "START", "PUSH", "ACT"],
-  "Effective Intelligence":     ["THINK", "SOLVE", "ADAPT", "SHARP", "PLAN"],
-  "Courage":                    ["FACE", "RISK", "TRUTH", "BOLD", "FEAR"],
-  "Determination":              ["PUSH", "HOLD", "PERSIST", "WALL", "BACK"],
-  "Sense of Responsibility":    ["DUTY", "OWN", "DELIVER", "CARRY", "ANSWER"],
-  "Stamina & Fitness":          ["ENDURE", "PACE", "LAST", "GRIND", "SURVIVE"],
-  "Reasoning Ability":          ["WHY", "LOGIC", "PATTERN", "CAUSE", "THINK"],
-  "Organising Ability":         ["STRUCTURE", "ORDER", "ASSIGN", "BUILD", "PLAN"],
-  "Power of Expression":        ["CLEAR", "DIRECT", "SPEAK", "WORD", "SHARP"],
-  "Social Adaptability":        ["BLEND", "FIT", "SENSE", "ADJUST", "READ"],
-  "Cooperation":                ["TEAM", "TOGETHER", "SUPPORT", "SHARE", "JOIN"],
-  "Ability to Influence Group": ["CONVINCE", "RALLY", "UNITE", "GUIDE", "INSPIRE"],
-  "Liveliness":                 ["ENERGY", "LIGHT", "SPARK", "RISE", "ALIVE"],
-};
 
 const ALL_OLQS = [
   "Effective Intelligence", "Reasoning Ability", "Organising Ability",

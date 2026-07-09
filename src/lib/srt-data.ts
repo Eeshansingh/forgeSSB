@@ -151,3 +151,114 @@ export const SRT_CATEGORY_RANGES: Record<SrtCategory, [number, number]> = {
   "Interpersonal and Social":  [80, 99],
   "Operational and Training":  [100, 119],
 };
+
+// 5 curated situations per OLQ, for OLQ-targeted Drill mode. Keyed with
+// JOURNEY_OLQS naming (matches the `?olq=` search param Drill receives directly) —
+// mirrors OLQ_WAT_WORDS in wat-data.ts.
+export const OLQ_SRT_SITUATIONS: Record<string, string[]> = {
+  "Self Confidence": [
+    "Your entire plan is challenged by a senior in front of the whole group and you are asked to defend it on the spot. You...",
+    "You are the only one who thinks the group's approach is wrong, but everyone else disagrees. You...",
+    "You are asked to lead a task you have never attempted before, in front of people more experienced than you. You...",
+    "Halfway through your presentation you lose your train of thought in front of the selection board. You...",
+    "A stranger challenges your ability to complete a physical task you have already agreed to do. You...",
+  ],
+  "Speed of Decision": [
+    "Two team members need opposite instructions right now and there is no time to consult anyone. You...",
+    "A vehicle is about to leave without a critical piece of equipment and it will be gone in seconds. You...",
+    "You spot a hazard seconds before your team walks into it. You...",
+    "You must choose between two evacuation routes with no time to check either. You...",
+    "The only working radio dies mid-transmission during a fast-changing situation. You...",
+  ],
+  "Initiative": [
+    "You notice a task nobody has been assigned and it is about to be missed. You...",
+    "Your senior is away and a problem comes up that cannot wait for their return. You...",
+    "You see an inefficient process everyone has quietly accepted for years. You...",
+    "A new recruit is struggling and no one has stepped in to help. You...",
+    "You realise a scheduled briefing has no owner and starts in ten minutes. You...",
+  ],
+  "Effective Intelligence": [
+    "Your team's only tool for a task breaks and there is no replacement available. You...",
+    "You must complete a task with half the resources you were promised. You...",
+    "A plan fails in the field and you must improvise a working alternative immediately. You...",
+    "You are given a problem with no textbook solution and a tight deadline. You...",
+    "Your written instructions contradict what you can see on the ground. You...",
+  ],
+  "Courage": [
+    "You must report a serious error made by someone senior to you. You...",
+    "You are the only one willing to enter a situation everyone else is avoiding. You...",
+    "Speaking up will cost you popularity with your peers, but staying silent means someone gets hurt. You...",
+    "You are asked to do something physically dangerous that others have refused. You...",
+    "You must admit a mistake that will reflect badly on you in front of the whole team. You...",
+  ],
+  "Determination": [
+    "You fail at a task on the first attempt with everyone watching. You...",
+    "You are exhausted with the hardest part of the task still ahead. You...",
+    "Your original plan has failed twice already and time is running out. You...",
+    "You are told your goal is unrealistic by someone whose opinion matters. You...",
+    "A setback wipes out a week of your team's progress the night before the deadline. You...",
+  ],
+  "Sense of Responsibility": [
+    "A mistake made by your team will be blamed on you unless you speak up about who is actually responsible. You...",
+    "You are the last person to check a critical detail before it goes wrong. You...",
+    "Nobody will notice if you skip a small but important step in the process. You...",
+    "You are handed a task with no supervision and no one checking your work. You...",
+    "Something you were meant to safeguard goes missing on your watch. You...",
+  ],
+  "Stamina & Fitness": [
+    "You are on the final stretch of a demanding task and your body wants to stop. You...",
+    "You have had almost no sleep and must still perform at full capacity. You...",
+    "The task turns out to be far longer than anyone was told. You...",
+    "You are asked to keep going after already completing what felt like a full day's effort. You...",
+    "Everyone else on your team has dropped out of a punishing task, but it is not yet finished. You...",
+  ],
+  "Reasoning Ability": [
+    "Two witnesses give you completely contradictory accounts of the same event. You...",
+    "A plan that looks correct on paper does not add up once you check the numbers. You...",
+    "You must figure out the real cause of a repeated failure that keeps being blamed on bad luck. You...",
+    "You are given a conclusion to accept, but the evidence does not clearly support it. You...",
+    "A shortcut is proposed that looks efficient but you suspect it skips a necessary step. You...",
+  ],
+  "Organising Ability": [
+    "You are given a large task and a small team with overlapping skills. You...",
+    "Multiple deadlines land on the same day and each depends on the other. You...",
+    "You must divide an unfamiliar task among people whose strengths you do not yet know. You...",
+    "A late addition to your team needs to be brought up to speed without slowing anyone down. You...",
+    "Your plan for the day is disrupted by an unexpected change an hour before it starts. You...",
+  ],
+  "Power of Expression": [
+    "You must explain a complex failure to someone with no background in the subject, in two minutes. You...",
+    "Your written report keeps being misunderstood by the people who need to act on it. You...",
+    "You must deliver bad news to a group without causing panic. You...",
+    "You are asked to summarise a long, messy discussion into one clear decision. You...",
+    "Someone challenges your point and you must restate it more convincingly, on the spot. You...",
+  ],
+  "Social Adaptability": [
+    "You are placed with a team whose working style is completely different from your own. You...",
+    "You join a group midway through a task and must fit in without disrupting it. You...",
+    "A cultural or regional difference in your team is causing quiet friction. You...",
+    "You must work closely with someone you clashed with earlier that day. You...",
+    "You are the newest and youngest person in a room full of experienced seniors. You...",
+  ],
+  "Cooperation": [
+    "A teammate's idea is weaker than yours but the group prefers it. You...",
+    "You finish your part early while others are still struggling with theirs. You...",
+    "Credit for a shared success is about to go to only one person on the team. You...",
+    "Your team needs you to take on a task outside your usual role to help someone else finish. You...",
+    "Two teams that normally compete must now share resources for a single goal. You...",
+  ],
+  "Ability to Influence Group": [
+    "Your team is drifting toward a decision you believe is wrong and time is short. You...",
+    "A demoralised group needs someone to convince them the task is still worth finishing. You...",
+    "You must get a reluctant team to agree to a plan they initially rejected. You...",
+    "A more senior voice in the room is pulling the group in the wrong direction. You...",
+    "You must rally a tired team for one final push with no formal authority over them. You...",
+  ],
+  "Liveliness": [
+    "Your team's energy collapses after a string of small setbacks. You...",
+    "A long, monotonous task is making everyone visibly disengaged. You...",
+    "The mood turns heavy after bad news and the task still needs to be finished. You...",
+    "You are the only person still enthusiastic after a difficult stretch of work. You...",
+    "A new member joins a tired, quiet team on their first day. You...",
+  ],
+};
