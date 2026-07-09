@@ -244,3 +244,99 @@ export async function evaluateBaseline(payload: {
   const cleaned = raw.replace(/^```json\s*/i, "").replace(/```\s*$/i, "").trim();
   return JSON.parse(cleaned) as BaselineResult;
 }
+
+// ── JOURNEY INSIGHTS (cross-session pattern mining) ────────────────────────────
+
+const JOURNEY_INSIGHTS_SYSTEM_PROMPT = `You are analysing an SSB (Services Selection Board) candidate's full journey so far — their Day 1 baseline OLQ scores and the reflections they've written after each session. Your job is to find the patterns that matter most and turn them into a prioritised practice plan.
+
+Rules:
+1. Describe the response, not the person. "This reflection avoids owning the decision," never "you avoid owning decisions."
+2. Never use: officer-grade, the board, the assessor flags, reads as a candidate who.
+3. Be specific, not encouraging. Quantify where possible.
+4. Evidence quotes must be copied verbatim from the reflections provided — never invent one.
+5. No pressure or urgency in tone.
+
+Return ONLY valid JSON, no markdown, no backticks:
+{
+  "focus_areas": [
+    {
+      "olq": "exact OLQ name from the baseline scores provided",
+      "priority": "Highest priority" | "Worth attention" | "Quick win",
+      "tag": "Focus area" | "Strength · consistent" | "To work on",
+      "title": "short pattern name for this OLQ, e.g. 'You hedge before committing'",
+      "evidence": [
+        { "ctx": "e.g. Day 4 reflection", "quote": "verbatim text pulled from a reflection", "read": "one sentence on what this shows" }
+      ],
+      "rewrites": [
+        { "weak": "verbatim or near-verbatim weak phrasing from a reflection", "strong": "a stronger alternative phrasing" }
+      ],
+      "plan": "one concrete, specific practice suggestion for this OLQ"
+    }
+  ],
+  "board_read": "1-2 sentences on how the overall pattern reads, ending on the one thing that would change it",
+  "strengths": ["2-4 OLQ names that are consistently strong"],
+  "gaps": ["2-4 OLQ names that are costing the most"],
+  "session_insights": [
+    { "day": 4, "olq": "OLQ name for that session", "text": "one-line observation about what that session's reflection showed" }
+  ]
+}
+
+focus_areas must have 1-3 items, most important first, each with exactly 2 evidence items and exactly 2 rewrites where the input has enough reflections to support that — if there are fewer than 2 reflections total, it is fine to include only 1 evidence item and 1 rewrite (never fabricate a second one). session_insights should cover every reflection given, in day order.`;
+
+export type JourneyInsights = {
+  focus_areas: {
+    olq: string;
+    priority: string;
+    tag: string;
+    title: string;
+    evidence: { ctx: string; quote: string; read: string }[];
+    rewrites: { weak: string; strong: string }[];
+    plan: string;
+  }[];
+  board_read: string;
+  strengths: string[];
+  gaps: string[];
+  session_insights: { day: number; olq: string; text: string }[];
+};
+
+export async function getJourneyInsights(payload: {
+  baseline_scores: Record<string, number>;
+  reflections: { session_number: number; olq_focus: string; prompt: string; response: string }[];
+}): Promise<JourneyInsights> {
+  const baselineBlock = Object.entries(payload.baseline_scores)
+    .map(([olq, score]) => `${olq}: ${score}`)
+    .join("\n");
+
+  const reflectionsBlock = payload.reflections
+    .map(
+      (r) =>
+        `Day ${r.session_number} · ${r.olq_focus || "General"}\nPrompt: "${r.prompt}"\nResponse: "${r.response}"`
+    )
+    .join("\n\n");
+
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "x-api-key": ANTHROPIC_API_KEY,
+      "anthropic-version": "2023-06-01",
+      "content-type": "application/json",
+      "anthropic-dangerous-direct-browser-access": "true",
+    },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-6",
+      max_tokens: 2000,
+      system: JOURNEY_INSIGHTS_SYSTEM_PROMPT,
+      messages: [
+        {
+          role: "user",
+          content: `Day 1 baseline OLQ scores:\n${baselineBlock}\n\nReflections so far:\n\n${reflectionsBlock}`,
+        },
+      ],
+    }),
+  });
+
+  const data = (await res.json()) as { content: Array<{ text: string }> };
+  const raw = data.content[0].text;
+  const cleaned = raw.replace(/^```json\s*/i, "").replace(/```\s*$/i, "").trim();
+  return JSON.parse(cleaned) as JourneyInsights;
+}

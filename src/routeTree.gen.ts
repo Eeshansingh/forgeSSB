@@ -19,6 +19,7 @@ import { Route as LeaderboardIndexRouteImport } from './routes/leaderboard.index
 import { Route as LeaderboardWatRouteImport } from './routes/leaderboard.wat'
 import { Route as LeaderboardSrtRouteImport } from './routes/leaderboard.srt'
 import { Route as LeaderboardGlobalRouteImport } from './routes/leaderboard.global'
+import { Route as JourneyRevealRouteImport } from './routes/journey.reveal'
 import { Route as JourneyOnboardingRouteImport } from './routes/journey.onboarding'
 import { Route as JourneyDashboardRouteImport } from './routes/journey.dashboard'
 import { Route as TestsWatIndexRouteImport } from './routes/tests.wat.index'
@@ -84,6 +85,11 @@ const LeaderboardGlobalRoute = LeaderboardGlobalRouteImport.update({
   id: '/global',
   path: '/global',
   getParentRoute: () => LeaderboardRoute,
+} as any)
+const JourneyRevealRoute = JourneyRevealRouteImport.update({
+  id: '/reveal',
+  path: '/reveal',
+  getParentRoute: () => JourneyRoute,
 } as any)
 const JourneyOnboardingRoute = JourneyOnboardingRouteImport.update({
   id: '/onboarding',
@@ -172,6 +178,7 @@ export interface FileRoutesByFullPath {
   '/tests': typeof TestsRouteWithChildren
   '/journey/dashboard': typeof JourneyDashboardRoute
   '/journey/onboarding': typeof JourneyOnboardingRoute
+  '/journey/reveal': typeof JourneyRevealRoute
   '/leaderboard/global': typeof LeaderboardGlobalRoute
   '/leaderboard/srt': typeof LeaderboardSrtRoute
   '/leaderboard/wat': typeof LeaderboardWatRoute
@@ -197,6 +204,7 @@ export interface FileRoutesByTo {
   '/pricing': typeof PricingRoute
   '/journey/dashboard': typeof JourneyDashboardRoute
   '/journey/onboarding': typeof JourneyOnboardingRoute
+  '/journey/reveal': typeof JourneyRevealRoute
   '/leaderboard/global': typeof LeaderboardGlobalRoute
   '/leaderboard/srt': typeof LeaderboardSrtRoute
   '/leaderboard/wat': typeof LeaderboardWatRoute
@@ -225,6 +233,7 @@ export interface FileRoutesById {
   '/tests': typeof TestsRouteWithChildren
   '/journey/dashboard': typeof JourneyDashboardRoute
   '/journey/onboarding': typeof JourneyOnboardingRoute
+  '/journey/reveal': typeof JourneyRevealRoute
   '/leaderboard/global': typeof LeaderboardGlobalRoute
   '/leaderboard/srt': typeof LeaderboardSrtRoute
   '/leaderboard/wat': typeof LeaderboardWatRoute
@@ -254,6 +263,7 @@ export interface FileRouteTypes {
     | '/tests'
     | '/journey/dashboard'
     | '/journey/onboarding'
+    | '/journey/reveal'
     | '/leaderboard/global'
     | '/leaderboard/srt'
     | '/leaderboard/wat'
@@ -279,6 +289,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/journey/dashboard'
     | '/journey/onboarding'
+    | '/journey/reveal'
     | '/leaderboard/global'
     | '/leaderboard/srt'
     | '/leaderboard/wat'
@@ -306,6 +317,7 @@ export interface FileRouteTypes {
     | '/tests'
     | '/journey/dashboard'
     | '/journey/onboarding'
+    | '/journey/reveal'
     | '/leaderboard/global'
     | '/leaderboard/srt'
     | '/leaderboard/wat'
@@ -405,6 +417,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/leaderboard/global'
       preLoaderRoute: typeof LeaderboardGlobalRouteImport
       parentRoute: typeof LeaderboardRoute
+    }
+    '/journey/reveal': {
+      id: '/journey/reveal'
+      path: '/reveal'
+      fullPath: '/journey/reveal'
+      preLoaderRoute: typeof JourneyRevealRouteImport
+      parentRoute: typeof JourneyRoute
     }
     '/journey/onboarding': {
       id: '/journey/onboarding'
@@ -517,12 +536,14 @@ declare module '@tanstack/react-router' {
 interface JourneyRouteChildren {
   JourneyDashboardRoute: typeof JourneyDashboardRoute
   JourneyOnboardingRoute: typeof JourneyOnboardingRoute
+  JourneyRevealRoute: typeof JourneyRevealRoute
   JourneySessionSessionNumberRoute: typeof JourneySessionSessionNumberRoute
 }
 
 const JourneyRouteChildren: JourneyRouteChildren = {
   JourneyDashboardRoute: JourneyDashboardRoute,
   JourneyOnboardingRoute: JourneyOnboardingRoute,
+  JourneyRevealRoute: JourneyRevealRoute,
   JourneySessionSessionNumberRoute: JourneySessionSessionNumberRoute,
 }
 

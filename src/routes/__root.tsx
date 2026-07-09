@@ -49,6 +49,8 @@ function RootComponent() {
     location.pathname.startsWith("/tests/wat/practice") ||
     location.pathname.startsWith("/tests/srt/full/test") ||
     location.pathname.startsWith("/tests/srt/practice");
+  const isDashboardShell = location.pathname.startsWith("/journey/dashboard");
+  const hideChrome = isTestActive || isDashboardShell;
 
   useEffect(() => {
     let mounted = true;
@@ -77,11 +79,11 @@ function RootComponent() {
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      {!isTestActive && <TopNav />}
+      {!hideChrome && <TopNav />}
       <main className="flex-1">
         <Outlet />
       </main>
-      {!isTestActive && <Footer />}
+      {!hideChrome && <Footer />}
     </div>
   );
 }

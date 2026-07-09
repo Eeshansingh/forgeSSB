@@ -350,6 +350,34 @@ export async function hasJourneyAccess(user_id: string): Promise<boolean> {
   return plan === 'journey'
 }
 
+// Convenience: does user have access to the dashboard shell at all?
+// (Any paid plan — Practice Pass or Journey. Free/no-purchase users get none.)
+export async function hasDashboardAccess(user_id: string): Promise<boolean> {
+  const plan = await getUserPurchase(user_id)
+  return plan === 'practice' || plan === 'journey'
+}
+
+export type DashboardTabAccess = {
+  home: boolean
+  progress: boolean
+  insights: boolean
+  practice: boolean
+}
+
+// Practice Pass unlocks Practice + Insights (built from the user's own test/practice
+// history, which Practice Pass already promises). Home + Progress are tied to the
+// 30-day curriculum, which only the Journey plan purchases.
+export function dashboardTabAccess(plan: PurchasePlan | null): DashboardTabAccess {
+  const journey = plan === 'journey'
+  const anyPaid = plan === 'practice' || journey
+  return {
+    home: journey,
+    progress: journey,
+    insights: anyPaid,
+    practice: anyPaid,
+  }
+}
+
 // Write a purchase row after successful Razorpay payment
 export async function recordPurchase(data: {
   user_id: string
