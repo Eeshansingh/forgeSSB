@@ -7,6 +7,7 @@ import {
   getBaselineScores,
   updateSessionStatus,
   hasJourneyAccess,
+  saveReflection,
 } from "@/lib/supabase";
 import { JOURNEY } from "@/lib/journey-content";
 import type { JourneySession, Profile } from "@/lib/journey-content";
@@ -993,7 +994,26 @@ function ChallengeFlow({
     setStep("done");
   }
 
+  async function continueFromReflection() {
+    const trimmed = reflText.trim();
+    if (trimmed) {
+      try {
+        await saveReflection({
+          user_id: userId,
+          session_number: sessionN,
+          prompt: reflQuestion || `What did today's session reveal about your ${olqFocus || "practice"}?`,
+          response: trimmed,
+          word_count: countWords(trimmed),
+        });
+      } catch (err) {
+        console.error("[saveReflection]", err);
+      }
+    }
+    setStep(missionText ? "mission" : "done");
+  }
+
   // Content helpers
+  const framing        = journeyData?.framing ?? "";
   const pullQuote      = journeyData?.pull_quote?.[resolvedProfile] ?? "";
   const whatMeans      = journeyData?.what_this_means?.[resolvedProfile] ?? "";
   const whatLow        = journeyData?.what_low_looks?.[resolvedProfile] ?? "";
@@ -1001,6 +1021,10 @@ function ChallengeFlow({
   const baselineNoteText = baselineScore !== null && baselineNote
     ? (baselineScore >= 65 ? baselineNote.strong : baselineNote.low).replace("[SCORE]", String(baselineScore))
     : null;
+  // social/sd sessions carry "how the board would read this" instead of a scored
+  // baseline note — no numeric threshold to gate on, so show the aspirational read.
+  const boardSees      = journeyData?.board_sees?.[resolvedProfile];
+  const boardSeesText  = !baselineNote && boardSees ? boardSees.strong : null;
   const reflQuestion   = journeyData?.reflection?.question ?? "";
   const reflNudge      = journeyData?.reflection?.nudge?.replace("[WORD_COUNT]", String(countWords(reflText))) ?? "";
   const missionText    = journeyData?.mission ?? "";
@@ -1066,6 +1090,11 @@ function ChallengeFlow({
                   </p>
                 </div>
 
+                {/* Framing (checkpoint / simulation intro copy) */}
+                {framing && (
+                  <p style={{ fontSize: "14px", color: "var(--fg)", lineHeight: 1.75 }}>{framing}</p>
+                )}
+
                 {/* Pull quote */}
                 {pullQuote && (
                   <div style={{ borderLeft: "3px solid var(--gold)", padding: "16px 18px", background: "var(--s1)" }}>
@@ -1106,6 +1135,14 @@ function ChallengeFlow({
                         {baselineNoteText}
                       </p>
                     )}
+                  </div>
+                )}
+
+                {/* How the board reads this (social / sd — no numeric score to gate on) */}
+                {boardSeesText && (
+                  <div style={{ background: "var(--s1)", border: "0.5px solid var(--border)", padding: "16px" }}>
+                    <p className="label" style={{ marginBottom: "8px" }}>How this reads</p>
+                    <p style={{ fontSize: "13px", color: "var(--muted)", lineHeight: 1.65 }}>{boardSeesText}</p>
                   </div>
                 )}
               </div>
@@ -1275,7 +1312,7 @@ function ChallengeFlow({
             </div>
 
             <div style={{ padding: "14px 24px 24px", borderTop: "0.5px solid var(--border)", display: "flex", flexDirection: "column", gap: "8px" }}>
-              <button className="btn-pay" type="button" onClick={() => setStep(missionText ? "mission" : "done")}>
+              <button className="btn-pay" type="button" onClick={() => void continueFromReflection()}>
                 {missionText ? "Continue to Mission →" : `Mark Day ${sessionN} Complete →`}
               </button>
               <button
