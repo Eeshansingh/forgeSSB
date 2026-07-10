@@ -30,6 +30,35 @@ export const OLQS = [
 
 export type Olq = (typeof OLQS)[number];
 
+// Journey-side OLQ tiles (dashboard-content.ts's JOURNEY_OLQS) use two names that
+// diverge from the scoring/AI-prompt naming above ("Stamina & Fitness" vs "Stamina",
+// "Ability to Influence Group" vs "Ability to Influence"). Map before calling any
+// AI scoring function with a target OLQ; identity for every other quality.
+export const JOURNEY_TO_SCORING_OLQ: Record<string, string> = {
+  "Stamina & Fitness": "Stamina",
+  "Ability to Influence Group": "Ability to Influence",
+};
+
+// 5 curated WAT words per OLQ, for OLQ-targeted Drill mode. Keyed with
+// JOURNEY_OLQS naming (matches the `?olq=` search param Drill receives directly).
+export const OLQ_WAT_WORDS: Record<string, string[]> = {
+  "Self Confidence":            ["DECIDE", "STAND", "OWN", "COMMIT", "SPEAK"],
+  "Speed of Decision":          ["NOW", "CHOOSE", "FAST", "CALL", "MOMENT"],
+  "Initiative":                 ["LEAD", "FIRST", "START", "PUSH", "ACT"],
+  "Effective Intelligence":     ["THINK", "SOLVE", "ADAPT", "SHARP", "PLAN"],
+  "Courage":                    ["FACE", "RISK", "TRUTH", "BOLD", "FEAR"],
+  "Determination":              ["PUSH", "HOLD", "PERSIST", "WALL", "BACK"],
+  "Sense of Responsibility":    ["DUTY", "OWN", "DELIVER", "CARRY", "ANSWER"],
+  "Stamina & Fitness":          ["ENDURE", "PACE", "LAST", "GRIND", "SURVIVE"],
+  "Reasoning Ability":          ["WHY", "LOGIC", "PATTERN", "CAUSE", "THINK"],
+  "Organising Ability":         ["STRUCTURE", "ORDER", "ASSIGN", "BUILD", "PLAN"],
+  "Power of Expression":        ["CLEAR", "DIRECT", "SPEAK", "WORD", "SHARP"],
+  "Social Adaptability":        ["BLEND", "FIT", "SENSE", "ADJUST", "READ"],
+  "Cooperation":                ["TEAM", "TOGETHER", "SUPPORT", "SHARE", "JOIN"],
+  "Ability to Influence Group": ["CONVINCE", "RALLY", "UNITE", "GUIDE", "INSPIRE"],
+  "Liveliness":                 ["ENERGY", "LIGHT", "SPARK", "RISE", "ALIVE"],
+};
+
 // Fixed baseline used as the "average aspirant" radar overlay on results pages.
 export const AVG_ASPIRANT_OLQ_SCORE = 60;
 

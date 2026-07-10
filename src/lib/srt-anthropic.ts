@@ -16,12 +16,15 @@ Return ONLY valid JSON, no markdown, no backticks:
 {
   "situation": "the situation text",
   "response": "candidate response verbatim",
+  "score": 7,
   "analysis": "2-3 sentences on what this response reveals",
   "olqs_demonstrated": [{"olq": "name", "strength": "strong|moderate|weak", "note": "one sentence"}],
   "missed_opportunity": "1-2 sentences on what OLQs were missed",
   "improved_response": "A model response — practical, decisive, action-oriented",
   "coaching_note": "1 direct sentence starting with an action verb"
-}`;
+}
+
+"score" is an integer 0-10 rating the overall quality of this single response.`;
 
 const FULL_SRT_SYSTEM_PROMPT = `You are a senior SSB psychologist analysing a candidate's complete SRT submission. Look for patterns across all responses. SRT reveals personality under pressure — how someone ACTUALLY behaves, not how they think they should behave.
 
@@ -61,7 +64,10 @@ Voice rules for top_pattern, other_patterns, and assessor_note:
 - Be specific, not encouraging. Quantify where possible.
 - No pressure or urgency in tone.`;
 
-export async function getSRTPracticeFeedback(situation: string, response: string) {
+export async function getSRTPracticeFeedback(situation: string, response: string, targetOlq?: string) {
+  const targetLine = targetOlq
+    ? `\nThis rep is targeting the "${targetOlq}" quality specifically — weight your "analysis", "olqs_demonstrated" ordering, and "coaching_note" toward how well this response demonstrates ${targetOlq}.`
+    : "";
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
@@ -77,7 +83,7 @@ export async function getSRTPracticeFeedback(situation: string, response: string
       messages: [
         {
           role: "user",
-          content: `Situation: "${situation}"\nCandidate response: "${response}"`,
+          content: `Situation: "${situation}"\nCandidate response: "${response}"${targetLine}`,
         },
       ],
     }),
