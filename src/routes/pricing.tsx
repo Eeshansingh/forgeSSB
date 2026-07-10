@@ -29,34 +29,6 @@ const CSS = `
   min-height: 100vh;
   color: var(--fg);
 }
-.ssb-pr .pr-nav {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  background: rgba(10,14,10,.92);
-  backdrop-filter: blur(12px);
-  border-bottom: 0.5px solid var(--border);
-  padding: 0 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 56px;
-}
-.ssb-pr .wm {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--serif);
-  font-size: 17px;
-  font-weight: 600;
-  cursor: pointer;
-  background: none;
-  border: none;
-  padding: 0;
-  color: inherit;
-  text-decoration: none;
-}
-.ssb-pr .wm-g { color: var(--gold); }
 .ssb-pr .label {
   font-family: var(--mono);
   font-size: 9px;
@@ -64,18 +36,6 @@ const CSS = `
   text-transform: uppercase;
   color: var(--muted);
 }
-.ssb-pr .btn-g {
-  background: none;
-  border: 0.5px solid var(--border);
-  font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: .18em;
-  text-transform: uppercase;
-  color: var(--muted);
-  padding: 8px 14px;
-  cursor: pointer;
-}
-.ssb-pr .btn-g:hover { color: var(--fg); }
 .ssb-pr .btn-pay {
   width: 100%;
   padding: 15px 24px;
@@ -108,11 +68,11 @@ const CSS = `
 .ssb-pr .btn-s:hover { border-color: rgba(201,168,76,.4); color: var(--fg); }
 .ssb-pr .tier {
   margin: 0 20px;
-  border: 1px solid var(--border);
+  border: 0.5px solid var(--border);
   background: var(--s1);
 }
 .ssb-pr .tier-featured {
-  border-color: var(--gold);
+  border: 1px solid var(--gold);
   position: relative;
 }
 .ssb-pr .tier-featured::before {
@@ -122,7 +82,7 @@ const CSS = `
   left: 0;
   right: 0;
   height: 2px;
-  background: var(--gold);
+  background: linear-gradient(to right, var(--gold), rgba(201,168,76,.2));
 }
 .ssb-pr .feature-row {
   display: flex;
@@ -269,8 +229,6 @@ function PricingPage() {
     }
   }
 
-  const goHome = () => void navigate({ to: "/" });
-
   if (payState === "success") {
     return (
       <>
@@ -299,17 +257,6 @@ function PricingPage() {
     <>
       <style>{CSS}</style>
       <div className="ssb-pr">
-
-        {/* Nav */}
-        <nav className="pr-nav">
-          <button className="wm" type="button" onClick={goHome}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" strokeWidth="1.5">
-              <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
-            </svg>
-            <span><span className="wm-g">Forge</span>SSB</span>
-          </button>
-          <button className="btn-g" type="button" onClick={goHome}>← Back</button>
-        </nav>
 
         {/* Header */}
         <div style={{ padding: "40px 24px 28px", borderBottom: "0.5px solid var(--border)" }}>

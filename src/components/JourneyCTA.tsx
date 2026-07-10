@@ -27,34 +27,28 @@ export function JourneyCTA() {
             {/* Left — copy */}
             <div>
               <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-gold/80">
-                Section II · 30-Day Programme
+                After the free test
               </p>
               <h2 className="mt-4 font-serif text-4xl font-semibold leading-[1.05] text-foreground md:text-5xl">
-                Know where you<br />
-                <span className="italic text-gold">actually</span> stand.
+                The free test shows where you stand. The Journey trains you to move.
               </h2>
               <p className="mt-5 max-w-sm text-[15px] leading-relaxed text-muted-foreground">
-                Day 1 maps all 15 OLQs from a calibration test. Days 2–30 drill your weakest qualities, one per session, with AI-scored WAT practice and a daily mission.
+                30 sessions. One mission per day. Day 1 calibrates all 15 OLQs. Days 2–30 drill your weakest
+                qualities — in priority order, AI-scored.
               </p>
-
-              <div className="mt-4 border-l-2 border-gold/40 pl-4">
-                <p className="font-serif text-sm italic text-gold/70">
-                  "This profile is locked. It only exists to be beaten."
-                </p>
-              </div>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
                 <Link
                   to="/pricing"
                   className="inline-flex items-center justify-center border border-gold bg-gold px-7 py-3.5 text-sm font-medium uppercase tracking-[0.18em] text-[#0A0E0A] transition-all hover:opacity-90"
                 >
-                  Start 30-Day Journey — ₹300 →
+                  Start 30-Day Journey · ₹300 →
                 </Link>
                 <Link
                   to="/tests"
                   className="inline-flex items-center justify-center border border-border/60 px-7 py-3.5 text-sm font-medium uppercase tracking-[0.18em] text-muted-foreground transition-all hover:border-gold/40 hover:text-foreground"
                 >
-                  Try free first
+                  Take free test first
                 </Link>
               </div>
 

@@ -1,6 +1,5 @@
 import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
-import { Lock } from "lucide-react";
 
 interface ModuleCardProps {
   name: string;
@@ -9,49 +8,67 @@ interface ModuleCardProps {
   icon: ReactNode;
   to?: string;
   locked?: boolean;
+  bullets?: string[];
+  ctaLabel?: string;
 }
 
-export function ModuleCard({ name, abbreviation, description, icon, to, locked }: ModuleCardProps) {
+export function ModuleCard({ name, abbreviation, description, icon, to, locked, bullets, ctaLabel }: ModuleCardProps) {
+  const cta = ctaLabel ?? (locked ? "Learn more →" : "Begin Practice →");
+
   const content = (
     <div
-      className={[
-        "group relative flex h-full flex-col gap-4 border border-border bg-surface-1 p-6 transition-all duration-200",
+      className={
         locked
-          ? "opacity-40"
-          : "hover:border-gold hover:bg-surface-2 hover:-translate-y-0.5 hover:shadow-[0_8px_30px_-12px_rgba(201,168,76,0.25)]",
-      ].join(" ")}
+          ? "flex h-full flex-col gap-4 bg-[#0d1209] p-6 sm:p-7"
+          : "flex h-full flex-col gap-4 bg-surface-1 p-6 transition-colors duration-200 hover:bg-surface-2 sm:p-7"
+      }
     >
-      {locked && (
-        <span className="absolute right-4 top-4 inline-flex items-center gap-1.5 border border-border bg-background/60 px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.15em] text-muted-foreground">
-          <Lock className="h-2.5 w-2.5" /> Coming Soon
-        </span>
-      )}
-
-      <div className="flex items-start justify-between">
-        <div className="flex h-10 w-10 items-center justify-center border border-border text-gold">
+      <div className="flex items-center justify-between gap-3">
+        <div
+          className={`flex h-10 w-10 shrink-0 items-center justify-center border ${
+            locked ? "border-white/5 text-muted-foreground" : "border-border text-gold"
+          }`}
+        >
           {icon}
         </div>
-        {abbreviation && !locked && (
-          <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-gold/70">
-            {abbreviation}
+        {locked ? (
+          <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap border border-gold px-2 py-1 font-mono text-[8px] uppercase tracking-[0.16em] text-gold">
+            <span className="h-1 w-1 rounded-full bg-gold" />
+            Coming Soon
           </span>
+        ) : (
+          abbreviation && (
+            <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-gold/60">{abbreviation}</span>
+          )
         )}
       </div>
 
-      <div className="flex flex-1 flex-col gap-2">
-        <h3 className="font-serif text-xl leading-tight text-foreground">{name}</h3>
-        <p className="text-sm leading-relaxed text-muted-foreground">{description}</p>
+      <div className="flex flex-1 flex-col gap-1.5">
+        <h3 className={`font-serif text-xl leading-tight ${locked ? "text-muted-foreground" : "text-foreground"}`}>{name}</h3>
+        <p className={`text-sm leading-relaxed ${locked ? "text-muted-foreground/55" : "text-muted-foreground"}`}>{description}</p>
       </div>
 
-      {!locked && (
-        <div className="flex items-center gap-2 pt-2 text-xs font-medium uppercase tracking-[0.18em] text-gold/80 transition-colors group-hover:text-gold">
-          Enter Module
-          <span className="transition-transform group-hover:translate-x-1">→</span>
+      {bullets && bullets.length > 0 && (
+        <div className={`flex flex-col gap-1.5 border-t pt-3.5 ${locked ? "border-white/[0.04]" : "border-border/60"}`}>
+          {bullets.map((b) => (
+            <p key={b} className="flex items-start gap-2 text-xs leading-relaxed">
+              <span
+                className={`mt-1.5 h-1 w-1 shrink-0 rounded-full ${locked ? "border border-gold/30 bg-transparent" : "bg-gold"}`}
+              />
+              <span className={locked ? "text-muted-foreground/50" : "text-muted-foreground"}>{b}</span>
+            </p>
+          ))}
         </div>
       )}
+
+      <p className={`font-mono text-[10px] uppercase tracking-[0.14em] ${locked ? "text-gold/35" : "text-gold"}`}>{cta}</p>
     </div>
   );
 
-  if (locked || !to) return content;
-  return <Link to={to}>{content}</Link>;
+  if (!to) return content;
+  return (
+    <Link to={to} className="no-underline">
+      {content}
+    </Link>
+  );
 }

@@ -22,6 +22,7 @@ import { Route as LeaderboardGlobalRouteImport } from './routes/leaderboard.glob
 import { Route as JourneyOnboardingRouteImport } from './routes/journey.onboarding'
 import { Route as JourneyDashboardRouteImport } from './routes/journey.dashboard'
 import { Route as TestsWatIndexRouteImport } from './routes/tests.wat.index'
+import { Route as TestsTatIndexRouteImport } from './routes/tests.tat.index'
 import { Route as TestsSrtIndexRouteImport } from './routes/tests.srt.index'
 import { Route as TestsWatPracticeRouteImport } from './routes/tests.wat.practice'
 import { Route as TestsSrtPracticeRouteImport } from './routes/tests.srt.practice'
@@ -98,6 +99,11 @@ const JourneyDashboardRoute = JourneyDashboardRouteImport.update({
 const TestsWatIndexRoute = TestsWatIndexRouteImport.update({
   id: '/wat/',
   path: '/wat/',
+  getParentRoute: () => TestsRoute,
+} as any)
+const TestsTatIndexRoute = TestsTatIndexRouteImport.update({
+  id: '/tat/',
+  path: '/tat/',
   getParentRoute: () => TestsRoute,
 } as any)
 const TestsSrtIndexRoute = TestsSrtIndexRouteImport.update({
@@ -181,6 +187,7 @@ export interface FileRoutesByFullPath {
   '/tests/srt/practice': typeof TestsSrtPracticeRoute
   '/tests/wat/practice': typeof TestsWatPracticeRoute
   '/tests/srt/': typeof TestsSrtIndexRoute
+  '/tests/tat/': typeof TestsTatIndexRoute
   '/tests/wat/': typeof TestsWatIndexRoute
   '/tests/srt/full/instructions': typeof TestsSrtFullInstructionsRoute
   '/tests/srt/full/results': typeof TestsSrtFullResultsRoute
@@ -206,6 +213,7 @@ export interface FileRoutesByTo {
   '/tests/srt/practice': typeof TestsSrtPracticeRoute
   '/tests/wat/practice': typeof TestsWatPracticeRoute
   '/tests/srt': typeof TestsSrtIndexRoute
+  '/tests/tat': typeof TestsTatIndexRoute
   '/tests/wat': typeof TestsWatIndexRoute
   '/tests/srt/full/instructions': typeof TestsSrtFullInstructionsRoute
   '/tests/srt/full/results': typeof TestsSrtFullResultsRoute
@@ -234,6 +242,7 @@ export interface FileRoutesById {
   '/tests/srt/practice': typeof TestsSrtPracticeRoute
   '/tests/wat/practice': typeof TestsWatPracticeRoute
   '/tests/srt/': typeof TestsSrtIndexRoute
+  '/tests/tat/': typeof TestsTatIndexRoute
   '/tests/wat/': typeof TestsWatIndexRoute
   '/tests/srt/full/instructions': typeof TestsSrtFullInstructionsRoute
   '/tests/srt/full/results': typeof TestsSrtFullResultsRoute
@@ -263,6 +272,7 @@ export interface FileRouteTypes {
     | '/tests/srt/practice'
     | '/tests/wat/practice'
     | '/tests/srt/'
+    | '/tests/tat/'
     | '/tests/wat/'
     | '/tests/srt/full/instructions'
     | '/tests/srt/full/results'
@@ -288,6 +298,7 @@ export interface FileRouteTypes {
     | '/tests/srt/practice'
     | '/tests/wat/practice'
     | '/tests/srt'
+    | '/tests/tat'
     | '/tests/wat'
     | '/tests/srt/full/instructions'
     | '/tests/srt/full/results'
@@ -315,6 +326,7 @@ export interface FileRouteTypes {
     | '/tests/srt/practice'
     | '/tests/wat/practice'
     | '/tests/srt/'
+    | '/tests/tat/'
     | '/tests/wat/'
     | '/tests/srt/full/instructions'
     | '/tests/srt/full/results'
@@ -425,6 +437,13 @@ declare module '@tanstack/react-router' {
       path: '/wat'
       fullPath: '/tests/wat/'
       preLoaderRoute: typeof TestsWatIndexRouteImport
+      parentRoute: typeof TestsRoute
+    }
+    '/tests/tat/': {
+      id: '/tests/tat/'
+      path: '/tat'
+      fullPath: '/tests/tat/'
+      preLoaderRoute: typeof TestsTatIndexRouteImport
       parentRoute: typeof TestsRoute
     }
     '/tests/srt/': {
@@ -552,6 +571,7 @@ interface TestsRouteChildren {
   TestsSrtPracticeRoute: typeof TestsSrtPracticeRoute
   TestsWatPracticeRoute: typeof TestsWatPracticeRoute
   TestsSrtIndexRoute: typeof TestsSrtIndexRoute
+  TestsTatIndexRoute: typeof TestsTatIndexRoute
   TestsWatIndexRoute: typeof TestsWatIndexRoute
   TestsSrtFullInstructionsRoute: typeof TestsSrtFullInstructionsRoute
   TestsSrtFullResultsRoute: typeof TestsSrtFullResultsRoute
@@ -568,6 +588,7 @@ const TestsRouteChildren: TestsRouteChildren = {
   TestsSrtPracticeRoute: TestsSrtPracticeRoute,
   TestsWatPracticeRoute: TestsWatPracticeRoute,
   TestsSrtIndexRoute: TestsSrtIndexRoute,
+  TestsTatIndexRoute: TestsTatIndexRoute,
   TestsWatIndexRoute: TestsWatIndexRoute,
   TestsSrtFullInstructionsRoute: TestsSrtFullInstructionsRoute,
   TestsSrtFullResultsRoute: TestsSrtFullResultsRoute,

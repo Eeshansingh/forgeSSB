@@ -69,7 +69,7 @@ function InstructionsPage() {
 
         <div className="mt-12">
           <h2 className="font-mono text-xs uppercase tracking-[0.3em] text-gold">
-            § Protocol
+            Protocol
           </h2>
           <ol className="mt-5 space-y-4">
             {RULES.map((r, i) => (
@@ -88,7 +88,7 @@ function InstructionsPage() {
 
         <div className="mt-14">
           <h2 className="font-mono text-xs uppercase tracking-[0.3em] text-gold">
-            § Assessment
+            Assessment
           </h2>
           <div className="mt-5 space-y-4">
             {OLQ_BRIEF.map((o) => (
@@ -102,7 +102,7 @@ function InstructionsPage() {
 
         <div className="mt-14">
           <h2 className="font-mono text-xs uppercase tracking-[0.3em] text-gold">
-            § Understanding OLQs
+            Understanding OLQs
           </h2>
           <div className="mt-5 space-y-4">
             {OLQ_EXPLAINER.map((item) => (
