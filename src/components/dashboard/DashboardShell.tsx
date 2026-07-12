@@ -268,7 +268,7 @@ export function DashboardShell({ active, onChange, userName, examLabel, dayLabel
           </div>
         </div>
 
-        <main style={{ flex: 1, padding: "24px 24px 100px", maxWidth: 900 }}>{children}</main>
+        <main style={{ flex: 1, width: "100%", maxWidth: 900, margin: "0 auto", padding: "24px 24px 100px" }}>{children}</main>
 
         {/* Mobile bottom tabs */}
         <nav
