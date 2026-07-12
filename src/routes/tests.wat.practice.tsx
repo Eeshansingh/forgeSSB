@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { getFullTestAnalysis } from "@/lib/anthropic";
 import { WAT_WORDS } from "@/lib/wat-data";
-import { getTestAttempts, recordTestAttempt, signInWithGoogle, supabase, updateTestAttempt } from "@/lib/supabase";
+import { getTestAttempts, getUserPurchase, recordTestAttempt, signInWithGoogle, supabase, updateTestAttempt } from "@/lib/supabase";
 import { AnalysisLoading } from "@/components/AnalysisLoading";
 import { TestResultsReport, type ResultsAnalysis } from "@/components/results/TestResultsReport";
 import { ADMIN_EMAILS } from '../lib/auth'
@@ -99,7 +99,8 @@ function PracticePage() {
         }
 
         const count = await getTestAttempts(authUser.id);
-        if (count >= 3) {
+        const plan = await getUserPurchase(authUser.id);
+        if (count >= 3 && !plan) {
           setAccessState("attempt_limit");
           return;
         }
@@ -219,7 +220,8 @@ function PracticePage() {
       if (attemptId) sessionStorage.setItem("forgessb_current_attempt_id", attemptId);
     } else {
       const count = await getTestAttempts(authUser.id);
-      if (count >= 3) {
+      const plan = await getUserPurchase(authUser.id);
+      if (count >= 3 && !plan) {
         setAccessState("attempt_limit");
         return;
       }

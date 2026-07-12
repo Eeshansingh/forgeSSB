@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { getTestAttempts, recordTestAttempt, signInWithGoogle, supabase } from "@/lib/supabase";
-import { ADMIN_EMAILS, canTakeTest } from '../lib/auth'
+import { getTestAttempts, getUserPurchase, recordTestAttempt, signInWithGoogle, supabase } from "@/lib/supabase";
+import { ADMIN_EMAILS } from '../lib/auth'
 
 export const Route = createFileRoute("/tests/wat/full/setup")({
   head: () => ({
@@ -66,7 +66,8 @@ function SetupPage() {
       if (attemptId) sessionStorage.setItem("forgessb_current_attempt_id", attemptId);
     } else {
       const count = await getTestAttempts(user.id);
-      if (count >= 3) {
+      const plan = await getUserPurchase(user.id);
+      if (count >= 3 && !plan) {
         setAttemptLimitReached(true);
         return;
       }
@@ -101,7 +102,8 @@ function SetupPage() {
         }
 
         const count = await getTestAttempts(user.id);
-        if (count >= 3) {
+        const plan = await getUserPurchase(user.id);
+        if (count >= 3 && !plan) {
           setAttemptLimitReached(true);
         }
       } finally {
