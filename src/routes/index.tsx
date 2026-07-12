@@ -1,8 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ModuleCard } from "@/components/ModuleCard";
-import { StarMark } from "@/components/StarMark";
 import { Brain, AlertTriangle, Image as ImageIcon } from "lucide-react";
 import { JourneyCTA } from "@/components/JourneyCTA";
+import { weeklyAspirantCount, weeklyTopScore } from "@/lib/hero-stats";
+
+const HERO_PREVIEW_OLQS = [
+  { name: "Cooperation", score: 79, tone: "text-success" },
+  { name: "Determination", score: 78, tone: "text-success" },
+  { name: "Speed of Decision", score: 55, tone: "text-gold" },
+  { name: "Power of Expression", score: 52, tone: "text-gold" },
+];
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -42,6 +49,9 @@ const HOW_IT_WORKS = [
 ];
 
 function LandingPage() {
+  const aspirantCount = weeklyAspirantCount();
+  const topScore = weeklyTopScore();
+
   return (
     <>
       {/* HERO */}
@@ -53,45 +63,84 @@ function LandingPage() {
           aria-hidden="true"
         />
 
-        <div className="relative mx-auto flex min-h-[calc(100vh-4rem)] max-w-5xl flex-col items-center justify-center px-6 py-20 text-center">
-          <div className="text-gold">
-            <StarMark size={56} />
+        <div className="relative mx-auto flex max-w-6xl flex-col items-start gap-10 px-6 py-16 sm:py-20 lg:flex-row lg:py-24">
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2.5">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-gold" />
+              <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-gold">
+                Free · 10 words · 2 minutes
+              </span>
+            </div>
+
+            <h1 className="mt-5 font-serif text-4xl font-semibold leading-[1.05] text-balance sm:text-6xl">
+              Find out what the SSB board sees in you.
+            </h1>
+
+            <p className="mt-6 max-w-[46ch] text-balance text-base leading-relaxed text-foreground/80 sm:text-lg">
+              Write one sentence per word. Our AI maps 15 Officer-Like Qualities from your instinctive responses —
+              the same framework the Board uses.
+            </p>
+
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <Link
+                to="/tests"
+                className="inline-flex items-center justify-center gap-2 border border-gold bg-gold px-7 py-3.5 text-sm font-medium uppercase tracking-[0.18em] text-[#0A0E0A] transition-all hover:opacity-90"
+              >
+                Start free assessment →
+              </Link>
+              <Link
+                to="/pricing"
+                className="inline-flex items-center justify-center gap-2 border border-border px-7 py-3.5 text-sm font-medium uppercase tracking-[0.18em] text-foreground/80 transition-all hover:border-foreground/40 hover:text-foreground"
+              >
+                Start 30-Day Journey · ₹300
+              </Link>
+            </div>
+
+            <div className="mt-8 flex flex-wrap items-center gap-x-3 gap-y-2 font-mono text-[11px] tracking-[0.08em] text-muted-foreground">
+              <span>
+                <span className="text-gold">{aspirantCount.toLocaleString()}</span> aspirants tested this week
+              </span>
+              <span className="hidden sm:inline">·</span>
+              <span className="hidden sm:inline">NDA · CDS · AFCAT · TA</span>
+              <span className="hidden sm:inline">·</span>
+              <span className="hidden sm:inline">
+                Top score this week: <span className="text-gold">{topScore}</span>
+              </span>
+            </div>
           </div>
 
-          <p className="mt-8 font-mono text-[11px] uppercase tracking-[0.4em] text-gold/80">
-            Services Selection Board · Preparation
-          </p>
+          <div className="hidden w-[320px] shrink-0 border border-gold bg-surface-1 lg:block">
+            <div className="border-b border-border bg-gold/5 px-4 py-3">
+              <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-gold">Your result · 2 min from now</p>
+            </div>
+            <div className="p-4">
+              <div className="flex items-baseline gap-2">
+                <span className="font-serif text-5xl font-bold leading-none text-gold">64</span>
+                <span className="font-mono text-[11px] text-muted-foreground">/ 100 · Top 29%</span>
+              </div>
+              <p className="mt-2.5 font-mono text-[9px] uppercase tracking-[0.12em] text-success">Strong Recommended</p>
 
-          <h1 className="mt-6 font-serif text-5xl font-semibold leading-[1.05] text-balance sm:text-6xl md:text-7xl">
-            Find out what the SSB board sees in you.
-          </h1>
+              <div className="mt-4 flex flex-col gap-2.5">
+                {HERO_PREVIEW_OLQS.map((o) => (
+                  <div key={o.name}>
+                    <div className="mb-1 flex justify-between">
+                      <span className="text-[11px] text-foreground">{o.name}</span>
+                      <span className={`font-mono text-[10px] ${o.tone}`}>{o.score}</span>
+                    </div>
+                    <div className="h-0.5 bg-border">
+                      <div className={`h-full ${o.tone === "text-success" ? "bg-success" : "bg-gold"} opacity-70`} style={{ width: `${o.score}%` }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
 
-          <div className="mt-8 h-px w-24 bg-gold/50" />
-
-          <p className="mt-8 max-w-xl text-balance text-base leading-relaxed text-foreground/80 sm:text-lg">
-            Write one sentence per word. Our AI maps 15 Officer-Like Qualities from your instinctive responses —
-            the same framework the Board uses.
-          </p>
-
-          <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row">
-            <Link
-              to="/tests"
-              className="inline-flex items-center gap-2 border border-gold bg-gold px-7 py-3.5 text-sm font-medium uppercase tracking-[0.18em] text-[#0A0E0A] transition-all hover:opacity-90"
-            >
-              Start free assessment →
-            </Link>
-            <Link
-              to="/pricing"
-              className="inline-flex items-center gap-2 border border-border px-7 py-3.5 text-sm font-medium uppercase tracking-[0.18em] text-foreground/80 transition-all hover:border-foreground/40 hover:text-foreground"
-            >
-              Start 30-Day Journey · ₹300
-            </Link>
-          </div>
-
-          <div className="mt-16 flex items-center gap-8 font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
-            <span>· Real SSB Conditions</span>
-            <span className="hidden sm:inline">· OLQ Pattern Analysis</span>
-            <span className="hidden md:inline">· Track Your Progress</span>
+              <div className="mt-4 border-l-2 border-gold/40 pl-2.5">
+                <p className="font-mono text-[8px] uppercase tracking-[0.14em] text-gold">Pattern identified</p>
+                <p className="mt-1 font-serif text-xs italic leading-relaxed text-foreground">
+                  "You hedge under time pressure — the instinct is sound."
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
