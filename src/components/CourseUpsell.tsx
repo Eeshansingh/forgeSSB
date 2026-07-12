@@ -1,11 +1,18 @@
 import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
+const RETAKE_ROUTE: Record<"wat" | "srt", Record<"full" | "practice", string>> = {
+  wat: { full: "/tests/wat/full/setup", practice: "/tests/wat/practice" },
+  srt: { full: "/tests/srt/full/setup", practice: "/tests/srt/practice" },
+};
+
 interface Props {
   lowestOlq?: string;
+  testType: "wat" | "srt";
+  mode: "full" | "practice";
 }
 
-export function CourseUpsell({ lowestOlq }: Props) {
+export function CourseUpsell({ lowestOlq, testType, mode }: Props) {
   return (
     <div>
       <p className="font-mono text-[9px] uppercase tracking-[0.22em] text-gold">Now what?</p>
@@ -43,12 +50,19 @@ export function CourseUpsell({ lowestOlq }: Props) {
       </div>
 
       <div className="mt-4 flex flex-wrap gap-3">
-        <Link
-          to="/pricing"
+        <button
+          type="button"
+          onClick={() => window.print()}
           className="border border-border px-4 py-2.5 font-mono text-[9px] uppercase tracking-[0.14em] text-muted-foreground transition-colors hover:border-gold/40 hover:text-foreground"
         >
-          See all plans
-        </Link>
+          ↓ Download report
+        </button>
+        <a
+          href={RETAKE_ROUTE[testType][mode]}
+          className="border border-border px-4 py-2.5 font-mono text-[9px] uppercase tracking-[0.14em] text-muted-foreground no-underline transition-colors hover:border-gold/40 hover:text-foreground"
+        >
+          Take another test
+        </a>
       </div>
     </div>
   );

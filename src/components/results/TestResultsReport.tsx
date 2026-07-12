@@ -136,7 +136,7 @@ export function TestResultsReport({
       <RankContextLeaderboard testType={testType} userScore={composite} rankData={rankData} />
 
       <div className="border-t border-border/60 px-6 py-10 sm:px-10">
-        <CourseUpsell lowestOlq={sortedWeakest[0]?.name} />
+        <CourseUpsell lowestOlq={sortedWeakest[0]?.name} testType={testType} mode={mode} />
       </div>
 
       <ResponseLogSection responses={responses} attemptedLabel={attemptedLabel} />
