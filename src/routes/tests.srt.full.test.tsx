@@ -26,6 +26,7 @@ function SrtTestScreen() {
   const [index, setIndex] = useState(0);
   const [response, setResponse] = useState("");
   const [timeLeft, setTimeLeft] = useState(SECONDS_PER_WORD);
+  const [prevIndex, setPrevIndex] = useState(index);
   const [allResponses, setAllResponses] = useState<{ situation: string; response: string }[]>([]);
   const [showEndConfirm, setShowEndConfirm] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -33,12 +34,16 @@ function SrtTestScreen() {
   const situation = situations[index];
   const isLast = index >= TOTAL_WORDS - 1;
 
+  if (index !== prevIndex) {
+    setPrevIndex(index);
+    setTimeLeft(SECONDS_PER_WORD);
+  }
+
   useEffect(() => {
     textareaRef.current?.focus();
   }, [index]);
 
   useEffect(() => {
-    setTimeLeft(SECONDS_PER_WORD);
     const interval = setInterval(() => {
       setTimeLeft((t) => {
         if (t <= 1) {
