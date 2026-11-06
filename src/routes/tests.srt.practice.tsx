@@ -72,6 +72,12 @@ function PracticePage() {
   const timerPct = (timeLeft / SECONDS_PER_WORD) * 100;
 
   useEffect(() => {
+    let settled = false;
+    // Access check must never hang the UI forever (e.g. a stuck Supabase auth
+    // call) — fail open to "allowed" after a timeout, same as the catch below.
+    const failSafe = window.setTimeout(() => {
+      if (!settled) setAccessState("allowed");
+    }, 8000);
     const run = async () => {
       try {
         setWaitlistJoined(localStorage.getItem("forgessb_waitlist") === "true");
@@ -107,9 +113,13 @@ function PracticePage() {
         setAccessState("allowed");
       } catch {
         setAccessState("allowed");
+      } finally {
+        settled = true;
+        window.clearTimeout(failSafe);
       }
     };
     void run();
+    return () => window.clearTimeout(failSafe);
   }, []);
 
   async function notifyWaitlist() {

@@ -96,20 +96,35 @@ function DrillPage() {
   const scoringOlq = olq ? (JOURNEY_TO_SCORING_OLQ[olq] ?? olq) : undefined;
 
   useEffect(() => {
+    let settled = false;
+    // Access check must never hang the UI forever. This page gates paid
+    // content, so on timeout or error we fail closed (send to pricing)
+    // rather than granting access.
+    const failSafe = window.setTimeout(() => {
+      if (!settled) void navigate({ to: "/pricing" });
+    }, 8000);
     const run = async () => {
-      const { data } = await supabase.auth.getUser();
-      if (!data.user) {
+      try {
+        const { data } = await supabase.auth.getUser();
+        if (!data.user) {
+          void navigate({ to: "/pricing" });
+          return;
+        }
+        const plan = await getUserPurchase(data.user.id);
+        if (plan !== "practice" && plan !== "journey") {
+          void navigate({ to: "/pricing" });
+          return;
+        }
+        setAccessState("allowed");
+      } catch {
         void navigate({ to: "/pricing" });
-        return;
+      } finally {
+        settled = true;
+        window.clearTimeout(failSafe);
       }
-      const plan = await getUserPurchase(data.user.id);
-      if (plan !== "practice" && plan !== "journey") {
-        void navigate({ to: "/pricing" });
-        return;
-      }
-      setAccessState("allowed");
     };
     void run();
+    return () => window.clearTimeout(failSafe);
   }, [navigate]);
 
   useEffect(() => {

@@ -317,15 +317,30 @@ function OnboardingPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let settled = false;
+    // Access check must never hang the UI forever. This page gates journey
+    // content, so on timeout or error we fail closed (send home) rather
+    // than granting access.
+    const failSafe = window.setTimeout(() => {
+      if (!settled) void navigate({ to: "/" });
+    }, 8000);
     const run = async () => {
-      const { data } = await supabase.auth.getUser();
-      if (!data.user) { void navigate({ to: "/" }); return; }
-      const access = await hasJourneyAccess(data.user.id);
-      if (!access) { void navigate({ to: "/pricing" }); return; }
-      setUserId(data.user.id);
-      setChecking(false);
+      try {
+        const { data } = await supabase.auth.getUser();
+        if (!data.user) { void navigate({ to: "/" }); return; }
+        const access = await hasJourneyAccess(data.user.id);
+        if (!access) { void navigate({ to: "/pricing" }); return; }
+        setUserId(data.user.id);
+        setChecking(false);
+      } catch {
+        void navigate({ to: "/" });
+      } finally {
+        settled = true;
+        window.clearTimeout(failSafe);
+      }
     };
     void run();
+    return () => window.clearTimeout(failSafe);
   }, [navigate]);
 
   if (checking) {

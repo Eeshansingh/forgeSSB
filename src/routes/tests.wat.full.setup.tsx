@@ -81,6 +81,12 @@ function SetupPage() {
   }
 
   useEffect(() => {
+    let settled = false;
+    // Access check must never hang the UI forever (e.g. a stuck Supabase auth
+    // call) — fail open past the "checking" screen after a timeout.
+    const failSafe = window.setTimeout(() => {
+      if (!settled) setChecking(false);
+    }, 8000);
     const run = async () => {
       try {
         setWaitlistJoined(localStorage.getItem("forgessb_waitlist") === "true");
@@ -107,10 +113,13 @@ function SetupPage() {
           setAttemptLimitReached(true);
         }
       } finally {
+        settled = true;
+        window.clearTimeout(failSafe);
         setChecking(false);
       }
     };
     void run();
+    return () => window.clearTimeout(failSafe);
   }, []);
 
   async function notifyWaitlist() {
