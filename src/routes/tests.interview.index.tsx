@@ -15,7 +15,7 @@ export const Route = createFileRoute("/tests/interview/")({
 });
 
 const WHAT_TO_EXPECT = [
-  { n: "01", label: "One question at a time", body: "Like the real thing, the officer asks, listens, and then follows up on what you actually said." },
+  { n: "01", label: "A bundle, then follow-ups", body: "Like the real thing, he asks a string of questions about your life in one go, then digs into what you actually said." },
   { n: "02", label: "No hints, no praise", body: "The officer stays neutral. You only find out how it went in the report at the end." },
   { n: "03", label: "No form needed", body: "You do not have to fill anything in first. The officer learns about you as you talk." },
 ];
@@ -36,7 +36,7 @@ function InterviewLanding() {
         </h1>
         <p className="mx-auto mt-6 max-w-[54ch] text-base leading-relaxed text-muted-foreground">
           In the real SSB, an interviewing officer talks to you one-on-one for 30 to 60 minutes, often built around your
-          own life and your own claims. This is a short mock of it: about 8 questions, 5 to 8 minutes, typed.
+          own life and your own claims. This is a five-minute mock of it: a bundle of questions about your life, then follow-ups on what you say. You can speak or type.
         </p>
         <div className="mt-10">
           <Link
