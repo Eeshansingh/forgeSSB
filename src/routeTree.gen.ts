@@ -26,8 +26,10 @@ import { Route as JourneyDashboardRouteImport } from './routes/journey.dashboard
 import { Route as TestsWatIndexRouteImport } from './routes/tests.wat.index'
 import { Route as TestsTatIndexRouteImport } from './routes/tests.tat.index'
 import { Route as TestsSrtIndexRouteImport } from './routes/tests.srt.index'
+import { Route as TestsInterviewIndexRouteImport } from './routes/tests.interview.index'
 import { Route as TestsWatPracticeRouteImport } from './routes/tests.wat.practice'
 import { Route as TestsSrtPracticeRouteImport } from './routes/tests.srt.practice'
+import { Route as TestsInterviewMockRouteImport } from './routes/tests.interview.mock'
 import { Route as JourneySessionSessionNumberRouteImport } from './routes/journey.session.$sessionNumber'
 import { Route as TestsWatFullTestRouteImport } from './routes/tests.wat.full.test'
 import { Route as TestsWatFullSetupRouteImport } from './routes/tests.wat.full.setup'
@@ -123,6 +125,11 @@ const TestsSrtIndexRoute = TestsSrtIndexRouteImport.update({
   path: '/srt/',
   getParentRoute: () => TestsRoute,
 } as any)
+const TestsInterviewIndexRoute = TestsInterviewIndexRouteImport.update({
+  id: '/interview/',
+  path: '/interview/',
+  getParentRoute: () => TestsRoute,
+} as any)
 const TestsWatPracticeRoute = TestsWatPracticeRouteImport.update({
   id: '/wat/practice',
   path: '/wat/practice',
@@ -131,6 +138,11 @@ const TestsWatPracticeRoute = TestsWatPracticeRouteImport.update({
 const TestsSrtPracticeRoute = TestsSrtPracticeRouteImport.update({
   id: '/srt/practice',
   path: '/srt/practice',
+  getParentRoute: () => TestsRoute,
+} as any)
+const TestsInterviewMockRoute = TestsInterviewMockRouteImport.update({
+  id: '/interview/mock',
+  path: '/interview/mock',
   getParentRoute: () => TestsRoute,
 } as any)
 const JourneySessionSessionNumberRoute =
@@ -198,8 +210,10 @@ export interface FileRoutesByFullPath {
   '/leaderboard/': typeof LeaderboardIndexRoute
   '/tests/': typeof TestsIndexRoute
   '/journey/session/$sessionNumber': typeof JourneySessionSessionNumberRoute
+  '/tests/interview/mock': typeof TestsInterviewMockRoute
   '/tests/srt/practice': typeof TestsSrtPracticeRoute
   '/tests/wat/practice': typeof TestsWatPracticeRoute
+  '/tests/interview/': typeof TestsInterviewIndexRoute
   '/tests/srt/': typeof TestsSrtIndexRoute
   '/tests/tat/': typeof TestsTatIndexRoute
   '/tests/wat/': typeof TestsWatIndexRoute
@@ -226,8 +240,10 @@ export interface FileRoutesByTo {
   '/leaderboard': typeof LeaderboardIndexRoute
   '/tests': typeof TestsIndexRoute
   '/journey/session/$sessionNumber': typeof JourneySessionSessionNumberRoute
+  '/tests/interview/mock': typeof TestsInterviewMockRoute
   '/tests/srt/practice': typeof TestsSrtPracticeRoute
   '/tests/wat/practice': typeof TestsWatPracticeRoute
+  '/tests/interview': typeof TestsInterviewIndexRoute
   '/tests/srt': typeof TestsSrtIndexRoute
   '/tests/tat': typeof TestsTatIndexRoute
   '/tests/wat': typeof TestsWatIndexRoute
@@ -257,8 +273,10 @@ export interface FileRoutesById {
   '/leaderboard/': typeof LeaderboardIndexRoute
   '/tests/': typeof TestsIndexRoute
   '/journey/session/$sessionNumber': typeof JourneySessionSessionNumberRoute
+  '/tests/interview/mock': typeof TestsInterviewMockRoute
   '/tests/srt/practice': typeof TestsSrtPracticeRoute
   '/tests/wat/practice': typeof TestsWatPracticeRoute
+  '/tests/interview/': typeof TestsInterviewIndexRoute
   '/tests/srt/': typeof TestsSrtIndexRoute
   '/tests/tat/': typeof TestsTatIndexRoute
   '/tests/wat/': typeof TestsWatIndexRoute
@@ -289,8 +307,10 @@ export interface FileRouteTypes {
     | '/leaderboard/'
     | '/tests/'
     | '/journey/session/$sessionNumber'
+    | '/tests/interview/mock'
     | '/tests/srt/practice'
     | '/tests/wat/practice'
+    | '/tests/interview/'
     | '/tests/srt/'
     | '/tests/tat/'
     | '/tests/wat/'
@@ -317,8 +337,10 @@ export interface FileRouteTypes {
     | '/leaderboard'
     | '/tests'
     | '/journey/session/$sessionNumber'
+    | '/tests/interview/mock'
     | '/tests/srt/practice'
     | '/tests/wat/practice'
+    | '/tests/interview'
     | '/tests/srt'
     | '/tests/tat'
     | '/tests/wat'
@@ -347,8 +369,10 @@ export interface FileRouteTypes {
     | '/leaderboard/'
     | '/tests/'
     | '/journey/session/$sessionNumber'
+    | '/tests/interview/mock'
     | '/tests/srt/practice'
     | '/tests/wat/practice'
+    | '/tests/interview/'
     | '/tests/srt/'
     | '/tests/tat/'
     | '/tests/wat/'
@@ -491,6 +515,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TestsSrtIndexRouteImport
       parentRoute: typeof TestsRoute
     }
+    '/tests/interview/': {
+      id: '/tests/interview/'
+      path: '/interview'
+      fullPath: '/tests/interview/'
+      preLoaderRoute: typeof TestsInterviewIndexRouteImport
+      parentRoute: typeof TestsRoute
+    }
     '/tests/wat/practice': {
       id: '/tests/wat/practice'
       path: '/wat/practice'
@@ -503,6 +534,13 @@ declare module '@tanstack/react-router' {
       path: '/srt/practice'
       fullPath: '/tests/srt/practice'
       preLoaderRoute: typeof TestsSrtPracticeRouteImport
+      parentRoute: typeof TestsRoute
+    }
+    '/tests/interview/mock': {
+      id: '/tests/interview/mock'
+      path: '/interview/mock'
+      fullPath: '/tests/interview/mock'
+      preLoaderRoute: typeof TestsInterviewMockRouteImport
       parentRoute: typeof TestsRoute
     }
     '/journey/session/$sessionNumber': {
@@ -609,8 +647,10 @@ const LeaderboardRouteWithChildren = LeaderboardRoute._addFileChildren(
 interface TestsRouteChildren {
   TestsDrillRoute: typeof TestsDrillRoute
   TestsIndexRoute: typeof TestsIndexRoute
+  TestsInterviewMockRoute: typeof TestsInterviewMockRoute
   TestsSrtPracticeRoute: typeof TestsSrtPracticeRoute
   TestsWatPracticeRoute: typeof TestsWatPracticeRoute
+  TestsInterviewIndexRoute: typeof TestsInterviewIndexRoute
   TestsSrtIndexRoute: typeof TestsSrtIndexRoute
   TestsTatIndexRoute: typeof TestsTatIndexRoute
   TestsWatIndexRoute: typeof TestsWatIndexRoute
@@ -627,8 +667,10 @@ interface TestsRouteChildren {
 const TestsRouteChildren: TestsRouteChildren = {
   TestsDrillRoute: TestsDrillRoute,
   TestsIndexRoute: TestsIndexRoute,
+  TestsInterviewMockRoute: TestsInterviewMockRoute,
   TestsSrtPracticeRoute: TestsSrtPracticeRoute,
   TestsWatPracticeRoute: TestsWatPracticeRoute,
+  TestsInterviewIndexRoute: TestsInterviewIndexRoute,
   TestsSrtIndexRoute: TestsSrtIndexRoute,
   TestsTatIndexRoute: TestsTatIndexRoute,
   TestsWatIndexRoute: TestsWatIndexRoute,

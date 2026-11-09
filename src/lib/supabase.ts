@@ -61,6 +61,7 @@ export async function getTestAttempts(userId?: string, anonymousId?: string) {
       .from('test_attempts')
       .select('*')
       .eq('user_id', userId)
+      .not('test_type', 'like', 'interview%')
     return data?.length ?? 0
   }
   if (anonymousId) {
@@ -71,6 +72,15 @@ export async function getTestAttempts(userId?: string, anonymousId?: string) {
     return data?.length ?? 0
   }
   return 0
+}
+
+export async function getInterviewAttemptCount(userId: string) {
+  const { count } = await supabase
+    .from('test_attempts')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', userId)
+    .like('test_type', 'interview%')
+  return count ?? 0
 }
 
 export async function recordTestAttempt(
