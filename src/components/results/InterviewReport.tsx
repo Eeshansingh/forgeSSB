@@ -74,6 +74,18 @@ export function InterviewReport({
         </p>
       </section>
 
+      {analysis.conduct && (
+        <section
+          className={`mt-6 border p-6 ${
+            analysis.conduct.rating === "Composed" ? "border-border bg-surface-1/60" : "border-danger/40 bg-surface-1/60"
+          }`}
+        >
+          <Label>Conduct in the room</Label>
+          <p className="mt-3 font-serif text-xl text-foreground">{analysis.conduct.rating}</p>
+          <p className="mt-2 text-sm leading-relaxed text-foreground/85">{analysis.conduct.notes}</p>
+        </section>
+      )}
+
       <section className="mt-6 border border-border bg-surface-1/60 p-6">
         <Label>Quality profile</Label>
         <div className="mx-auto mt-4 max-w-sm">
