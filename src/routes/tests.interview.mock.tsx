@@ -67,7 +67,6 @@ const btnSecondary =
   "inline-flex h-[48px] items-center justify-center gap-2 rounded-[4px] border px-5 text-[16px] transition-colors hover:bg-black/5 disabled:opacity-40";
 
 // Roughly how long a person needs to take in a spoken line before it is gone.
-const readingMs = (text: string) => Math.max(5000, 2500 + text.split(/\s+/).length * 340);
 
 function MicIcon() {
   return (
@@ -109,15 +108,12 @@ function MockInterviewPage() {
   const [chestNo, setChestNo] = useState(() => 9 + Math.floor(Math.random() * 28));
   const [micHeard, setMicHeard] = useState<string | null>(null);
   const [micTesting, setMicTesting] = useState(false);
-  const [speechVisible, setSpeechVisible] = useState(true);
-  const [repeats, setRepeats] = useState(0);
   const listenerRef = useRef<Listener | null>(null);
   const baseDraftRef = useRef("");
   const draftRef = useRef("");
   draftRef.current = draft;
   const attemptIdRef = useRef<string | undefined>(undefined);
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const speechTimerRef = useRef<number | undefined>(undefined);
 
   const secondsLeft = INTERVIEW_SECONDS - elapsed;
 
@@ -178,31 +174,11 @@ function MockInterviewPage() {
     return () => window.clearInterval(id);
   }, [phase, stage, waiting]);
 
-  // What the officer says is said once: it fades after a normal reading time.
-  useEffect(() => {
-    if (phase !== "room" || stage !== "talking" || waiting) return;
-    showSpeech();
-    setRepeats(0);
-    return () => window.clearTimeout(speechTimerRef.current);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [question, phase, stage, waiting]);
-
   useEffect(() => {
     if (phase === "room" && !waiting && !voiceMode) inputRef.current?.focus();
   }, [question, waiting, phase, voiceMode]);
 
   useEffect(() => () => listenerRef.current?.stop(), []);
-
-  function showSpeech() {
-    window.clearTimeout(speechTimerRef.current);
-    setSpeechVisible(true);
-    speechTimerRef.current = window.setTimeout(() => setSpeechVisible(false), readingMs(question));
-  }
-
-  function askRepeat() {
-    setRepeats((r) => r + 1);
-    showSpeech();
-  }
 
   function stopMic() {
     listenerRef.current?.stop();
@@ -321,7 +297,7 @@ function MockInterviewPage() {
     const answer = draft.trim();
     if (!answer || waiting) return;
     stopMic();
-    const pending: InterviewTurn[] = [...turns, { question, answer, kind, repeats: repeats || undefined }];
+    const pending: InterviewTurn[] = [...turns, { question, answer, kind }];
     setTurns(pending);
     setDraft("");
     setError(null);
@@ -532,7 +508,7 @@ function MockInterviewPage() {
                   {OFFICER_NAME} will interview you for five minutes. He is played by AI. Treat the room as real.
                 </p>
                 <ul className="m-0 flex list-disc flex-col gap-[6px] pl-5 text-[15px] leading-[1.5]" style={{ color: "#36332D" }}>
-                  <li>He says each question once. Listen fully; you can ask him to repeat.</li>
+                  <li>Listen to each question fully. It stays on screen while you answer.</li>
                   <li>Address him as Sir. Answer in your own words, with real examples. He will dig into what you say.</li>
                   <li>Jokes, disrespect or nonsense are noted, and he can end the interview.</li>
                   <li>Once you knock, this counts as your one free mock.</li>
@@ -641,10 +617,9 @@ function MockInterviewPage() {
   );
 
   const speech = (() => {
-    if (stage !== "talking") return { text: question, italic: false, hidden: false };
-    if (waiting) return { text: "He writes something in your file.", italic: true, hidden: false };
-    if (!speechVisible) return { text: "", italic: true, hidden: true };
-    return { text: question, italic: false, hidden: false };
+    if (stage !== "talking") return { text: question, italic: false };
+    if (waiting) return { text: "He writes something in your file.", italic: true };
+    return { text: question, italic: false };
   })();
 
   const showAnswerBox = !voiceMode || listening || draft.trim().length > 0;
@@ -656,20 +631,14 @@ function MockInterviewPage() {
         <OfficeScene pose={officerWriting ? "writing" : "listening"} officerName={OFFICER_PLATE} />
       </div>
 
-      <div aria-live="polite" className="flex min-h-[86px] shrink-0 flex-col justify-center gap-1 px-4 py-3 md:min-h-[96px] md:px-10" style={{ background: "#151513", color: "#FFFFFF" }}>
-        <p className="m-0 text-[13px]" style={{ color: "#B9B3A5" }}>{OFFICER_PLATE}</p>
-        {speech.hidden ? (
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-1">
-            <p className="m-0 text-[17px] italic md:text-[19px]" style={{ color: "#C9C4B8" }}>He waits for your answer.</p>
-            <button type="button" onClick={askRepeat} className="text-[16px] underline underline-offset-4" style={{ color: "#FFFFFF" }}>
-              Sorry Sir, could you repeat that?
-            </button>
-          </div>
-        ) : (
-          <p className="m-0 text-[18px] leading-[1.5] md:text-[22px]" style={{ fontStyle: speech.italic ? "italic" : "normal" }}>
-            {speech.text}
-          </p>
-        )}
+      <div aria-live="polite" className="relative z-20 flex max-h-[44dvh] min-h-[110px] shrink-0 flex-col gap-2 overflow-y-auto px-4 py-4 md:min-h-[128px] md:px-10 md:py-5" style={{ background: "#151513", color: "#FFFFFF", borderTop: `4px solid ${ROOM.tape}` }}>
+        <p className="m-0 text-[14px] font-bold md:text-[15px]" style={{ color: "#D9D3C4" }}>{OFFICER_PLATE} asks</p>
+        <p
+          className={`m-0 max-w-[1100px] leading-[1.4] ${speech.text.length > 180 ? "text-[18px] md:text-[23px]" : "text-[21px] md:text-[28px]"}`}
+          style={{ fontStyle: speech.italic ? "italic" : "normal", color: speech.italic ? "#D9D3C4" : "#FFFFFF" }}
+        >
+          {speech.text}
+        </p>
       </div>
 
       <section className="shrink-0 px-4 py-4 md:px-10 md:py-5">
