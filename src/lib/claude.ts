@@ -1,0 +1,42 @@
+const ANTHROPIC_API_KEY = import.meta.env.VITE_ANTHROPIC_API_KEY;
+
+export const CLAUDE_MODELS = {
+  fast: "claude-haiku-5-5",
+  analysis: "claude-sonnet-5-5",
+} as const;
+
+export async function callClaudeJson<T = unknown>(opts: {
+  model: string;
+  system: string;
+  user: string;
+  maxTokens: number;
+}): Promise<T> {
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "x-api-key": ANTHROPIC_API_KEY,
+      "anthropic-version": "2023-06-01",
+      "content-type": "application/json",
+      "anthropic-dangerous-direct-browser-access": "true",
+    },
+    body: JSON.stringify({
+      model: opts.model,
+      max_tokens: opts.maxTokens,
+      system: opts.system,
+      messages: [{ role: "user", content: opts.user }],
+    }),
+  });
+
+  const data = await res.json().catch(() => null);
+  if (!res.ok) {
+    throw new Error(`Claude API ${res.status}: ${data?.error?.message ?? "request failed"}`);
+  }
+  const raw: string = (data?.content ?? [])
+    .filter((b: { type?: string }) => b.type === "text")
+    .map((b: { text: string }) => b.text)
+    .join("");
+  const start = raw.indexOf("{");
+  const end = raw.lastIndexOf("}");
+  if (start === -1 || end <= start) throw new Error("Claude returned no JSON");
+  return JSON.parse(raw.slice(start, end + 1)) as T;
+}
