@@ -10,6 +10,13 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 supabase.auth.onAuthStateChange((event, session) => {
   if (event === 'SIGNED_IN' && session?.user) {
     identifyUser(session.user.id, { email: session.user.email })
+    const anonymousId = localStorage.getItem('forgessb_anonymous_id')
+    if (anonymousId) {
+      // Deferred: calling supabase inside the auth callback can deadlock.
+      setTimeout(() => {
+        void supabase.rpc('claim_anon_attempts', { p_anonymous_id: anonymousId })
+      }, 0)
+    }
   }
 })
 
@@ -73,9 +80,13 @@ export async function recordTestAttempt(
   wordCount?: number,
   email?: string
 ) {
-  const { data, error } = await supabase
+  // Client-generated id and no .select(): anonymous rows can't be read back
+  // under RLS, and RETURNING would make the whole insert fail.
+  const id = crypto.randomUUID()
+  const { error } = await supabase
     .from('test_attempts')
     .insert({
+      id,
       user_id: userId || null,
       anonymous_id: anonymousId || null,
       test_type: testType,
@@ -84,11 +95,9 @@ export async function recordTestAttempt(
       word_count: wordCount || null,
       email: email || null
     })
-    .select('id')
-    .single()
 
   if (error) throw error
-  return data?.id as string | undefined
+  return id as string | undefined
 }
 
 export async function updateTestAttempt(
@@ -104,22 +113,17 @@ export async function updateTestAttempt(
     throw new Error('Missing attempt id')
   }
 
-  const payload: Record<string, unknown> = {
-    responses: responses || null,
-    analysis: analysis || null,
-    word_count: wordCount || null,
-  }
-  if (score !== undefined) payload.score = score
-  if (displayName !== undefined) payload.display_name = displayName
-
   console.log('[updateTestAttempt] Updating attempt', { id, wordCount })
 
-  const { data, error } = await supabase
-    .from('test_attempts')
-    .update(payload)
-    .eq('id', id)
-    .select('*')
-    .single()
+  const { error } = await supabase.rpc('update_test_attempt', {
+    p_id: id,
+    p_anonymous_id: localStorage.getItem('forgessb_anonymous_id'),
+    p_responses: responses || null,
+    p_analysis: analysis || null,
+    p_word_count: wordCount || null,
+    p_score: score ?? null,
+    p_display_name: displayName ?? null,
+  })
 
   if (error) {
     console.log('[updateTestAttempt] Update failed', { id, error })
@@ -127,7 +131,7 @@ export async function updateTestAttempt(
   }
 
   console.log('[updateTestAttempt] Update success', { id })
-  return data
+  return { id }
 }
 
 // JOURNEY PROFILES
