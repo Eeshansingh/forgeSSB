@@ -16,7 +16,7 @@ npm run dev
 | --- | --- | --- |
 | `VITE_SUPABASE_URL` | Yes | From your Supabase project's Settings → API. The app crashes on load without this — the Supabase client is created at import time (`src/lib/supabase.ts`). |
 | `VITE_SUPABASE_ANON_KEY` | Yes | Same page as above. |
-| `VITE_ANTHROPIC_API_KEY` | Yes, for AI-scored tests | Used to score WAT/SRT practice and full-test responses. |
+| `ANTHROPIC_API_KEY` | Yes, for AI-scored tests | Server-side only (no VITE_ prefix). Used by `api/claude.ts` to score WAT/SRT responses. |
 | `VITE_RAZORPAY_KEY_ID` | No | Omit in dev — `src/routes/pricing.tsx` falls back to writing a mock active purchase so you can test paid-tier flows without real payments. |
 
 ## Scripts

@@ -1,5 +1,3 @@
-const ANTHROPIC_API_KEY = import.meta.env.VITE_ANTHROPIC_API_KEY;
-
 export const CLAUDE_MODELS = {
   fast: "claude-haiku-5-5",
   analysis: "claude-sonnet-5-5",
@@ -11,14 +9,9 @@ export async function callClaudeJson<T = unknown>(opts: {
   user: string;
   maxTokens: number;
 }): Promise<T> {
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
+  const res = await fetch("/api/claude", {
     method: "POST",
-    headers: {
-      "x-api-key": ANTHROPIC_API_KEY,
-      "anthropic-version": "2023-06-01",
-      "content-type": "application/json",
-      "anthropic-dangerous-direct-browser-access": "true",
-    },
+    headers: { "content-type": "application/json" },
     body: JSON.stringify({
       model: opts.model,
       max_tokens: opts.maxTokens,
