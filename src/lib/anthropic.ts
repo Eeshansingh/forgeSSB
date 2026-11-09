@@ -145,7 +145,7 @@ export async function getFullTestAnalysis(
     model: CLAUDE_MODELS.analysis,
     system: FULL_TEST_SYSTEM_PROMPT,
     user: `Analyse the following WAT responses:\n\n${formatted}`,
-    maxTokens: 4000,
+    maxTokens: 12000,
   });
 }
 
@@ -222,7 +222,7 @@ export async function evaluateBaseline(payload: {
     model: CLAUDE_MODELS.analysis,
     system: BASELINE_SYSTEM_PROMPT,
     user: `SCENARIO MCQ RESPONSES (10 situations):\n${mcqBlock}\n\nTIMED SHORT RESPONSES (30 seconds each):\n${srtBlock}\n\nCANDIDATE PROFILE: ${payload.profile.exam_type.toUpperCase()} preparation, attempt number ${payload.profile.attempt_number}`,
-    maxTokens: 3000,
+    maxTokens: 12000,
   });
 }
 
@@ -299,6 +299,6 @@ export async function getJourneyInsights(payload: {
     model: CLAUDE_MODELS.analysis,
     system: JOURNEY_INSIGHTS_SYSTEM_PROMPT,
     user: `Day 1 baseline OLQ scores:\n${baselineBlock}\n\nReflections so far:\n\n${reflectionsBlock}`,
-    maxTokens: 4000,
+    maxTokens: 12000,
   });
 }

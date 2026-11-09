@@ -80,7 +80,7 @@ If this answer is acceptable and it was the final question, set "say" to an empt
     model: CLAUDE_MODELS.fast,
     system: OFFICER_PROMPT,
     user,
-    maxTokens: 400,
+    maxTokens: 1000,
   });
   const conduct: Conduct = out.conduct === "lapse" || out.conduct === "serious" ? out.conduct : "ok";
   return { conduct, reason: String(out.reason ?? ""), say: String(out.say ?? "").trim() };
@@ -158,6 +158,6 @@ export async function getInterviewAnalysis(
     model: CLAUDE_MODELS.analysis,
     system: INTERVIEW_ANALYSIS_PROMPT,
     user: `Interview transcript:\n\n${transcript}${tail}`,
-    maxTokens: 4000,
+    maxTokens: 12000,
   });
 }

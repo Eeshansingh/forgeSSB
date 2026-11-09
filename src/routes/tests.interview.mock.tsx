@@ -65,7 +65,8 @@ function MockInterviewPage() {
   const [analysis, setAnalysis] = useState<InterviewAnalysis | null>(null);
   const [waitlistJoined, setWaitlistJoined] = useState(false);
   const canListen = voiceInputSupported();
-  const canSpeak = voiceOutputSupported();
+  // The officer stays silent for now: browser voices sound mechanical. Questions show as text.
+  const canSpeak = false && voiceOutputSupported();
   const [voiceMode, setVoiceMode] = useState(canListen);
   const [listening, setListening] = useState(false);
   const [speaking, setSpeaking] = useState(false);
@@ -301,7 +302,7 @@ function MockInterviewPage() {
         if (points >= LAPSE_LIMIT) {
           setClosing(CLOSING_LINE);
           persist(updated, question, points, "ended");
-          cancelSpeechRef.current = speak(CLOSING_LINE, () => {});
+          if (canSpeak) cancelSpeechRef.current = speak(CLOSING_LINE, () => {});
           await finish(updated, true);
           return;
         }
@@ -565,14 +566,14 @@ function MockInterviewPage() {
               >
                 {listening ? "● Listening. Tap to pause" : "Tap to speak"}
               </button>
-              <button
+              {canSpeak && (<button
                 type="button"
                 disabled={waiting}
                 onClick={() => askAloud(question)}
                 className="font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground hover:text-gold disabled:opacity-40"
               >
                 {speaking ? "Officer speaking…" : "Replay question"}
-              </button>
+              </button>)}
               <button
                 type="button"
                 onClick={() => {
