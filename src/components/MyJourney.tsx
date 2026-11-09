@@ -40,6 +40,7 @@ function compositeScore(scores: OlqScores): number {
 function testTypeLabel(type: string) {
   if (type === "wat_full") return "WAT Full Simulation";
   if (type === "wat_practice") return "WAT Practice";
+  if (type === "interview_mock") return "Mock Interview";
   return type;
 }
 
