@@ -73,9 +73,13 @@ export async function recordTestAttempt(
   wordCount?: number,
   email?: string
 ) {
-  const { data, error } = await supabase
+  // Client-generated id and no .select(): anonymous rows can't be read back
+  // under RLS, and RETURNING would make the whole insert fail.
+  const id = crypto.randomUUID()
+  const { error } = await supabase
     .from('test_attempts')
     .insert({
+      id,
       user_id: userId || null,
       anonymous_id: anonymousId || null,
       test_type: testType,
@@ -84,11 +88,9 @@ export async function recordTestAttempt(
       word_count: wordCount || null,
       email: email || null
     })
-    .select('id')
-    .single()
 
   if (error) throw error
-  return data?.id as string | undefined
+  return id as string | undefined
 }
 
 export async function updateTestAttempt(
@@ -114,12 +116,10 @@ export async function updateTestAttempt(
 
   console.log('[updateTestAttempt] Updating attempt', { id, wordCount })
 
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from('test_attempts')
     .update(payload)
     .eq('id', id)
-    .select('*')
-    .single()
 
   if (error) {
     console.log('[updateTestAttempt] Update failed', { id, error })
@@ -127,7 +127,7 @@ export async function updateTestAttempt(
   }
 
   console.log('[updateTestAttempt] Update success', { id })
-  return data
+  return { id }
 }
 
 // JOURNEY PROFILES
