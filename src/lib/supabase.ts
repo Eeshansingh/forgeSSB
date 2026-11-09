@@ -13,8 +13,10 @@ supabase.auth.onAuthStateChange((event, session) => {
     const anonymousId = localStorage.getItem('forgessb_anonymous_id')
     if (anonymousId) {
       // Deferred: calling supabase inside the auth callback can deadlock.
-      setTimeout(() => {
-        void supabase.rpc('claim_anon_attempts', { p_anonymous_id: anonymousId })
+      // rpc() builders are lazy: the request is only sent once awaited.
+      setTimeout(async () => {
+        const { error } = await supabase.rpc('claim_anon_attempts', { p_anonymous_id: anonymousId })
+        if (error) console.error('[claim_anon_attempts] failed', error)
       }, 0)
     }
   }
