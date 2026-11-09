@@ -49,7 +49,8 @@ function RootComponent() {
     location.pathname.startsWith("/tests/wat/practice") ||
     location.pathname.startsWith("/tests/srt/full/test") ||
     location.pathname.startsWith("/tests/srt/practice") ||
-    location.pathname.startsWith("/tests/drill");
+    location.pathname.startsWith("/tests/drill") ||
+    location.pathname.startsWith("/tests/interview/mock");
   const isDashboardShell = location.pathname.startsWith("/journey/dashboard");
   const hideChrome = isTestActive || isDashboardShell;
 
