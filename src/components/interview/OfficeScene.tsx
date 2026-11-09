@@ -70,7 +70,7 @@ function Officer({ pose }: { pose: OfficerPose }) {
 // Fills its parent's height. The parent decides how tall the room is.
 export function OfficeScene({ pose, officerName }: { pose: OfficerPose; officerName: string }) {
   return (
-    <section aria-label="The interview room" className="relative h-full min-h-[240px] overflow-hidden" style={{ background: ROOM.wall }}>
+    <section aria-label="The interview room" className="relative h-full min-h-[170px] overflow-hidden" style={{ background: ROOM.wall }}>
       <div
         aria-hidden="true"
         className="absolute left-1/2 top-0 h-[8px] w-[200px] -translate-x-1/2 md:w-[360px]"
