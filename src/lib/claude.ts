@@ -28,6 +28,8 @@ export async function callClaudeJson<T = unknown>(opts: {
     .filter((b: { type?: string }) => b.type === "text")
     .map((b: { text: string }) => b.text)
     .join("");
+  if (!raw.trim() && data?.stop_reason === "max_tokens") throw new Error("Claude reply was cut off");
+  if (data?.stop_reason === "refusal") throw new Error("Claude declined the request");
   const start = raw.indexOf("{");
   const end = raw.lastIndexOf("}");
   if (start === -1 || end <= start) throw new Error("Claude returned no JSON");

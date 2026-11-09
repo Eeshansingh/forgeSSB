@@ -97,6 +97,6 @@ export async function getSRTFullAnalysis(
     model: CLAUDE_MODELS.analysis,
     system: FULL_SRT_SYSTEM_PROMPT,
     user: `Analyse the following SRT responses:\n\n${formatted}`,
-    maxTokens: 4000,
+    maxTokens: 12000,
   });
 }

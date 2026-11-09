@@ -2,7 +2,7 @@
 // Requires the ANTHROPIC_API_KEY environment variable (no VITE_ prefix) in Vercel.
 
 const ALLOWED_MODELS = new Set(["claude-haiku-5-5", "claude-sonnet-5-5"]);
-const MAX_TOKENS_CAP = 6000;
+const MAX_TOKENS_CAP = 16000;
 const MAX_INPUT_CHARS = 60000;
 
 function originAllowed(request: Request): boolean {
@@ -47,19 +47,32 @@ export async function POST(request: Request): Promise<Response> {
   const size = system.length + messages.reduce((n, m) => n + String(m.content ?? "").length, 0);
   if (size > MAX_INPUT_CHARS) return json({ error: { message: "Input too large" } }, 413);
 
+  const headers: Record<string, string> = {
+    "x-api-key": apiKey,
+    "anthropic-version": "2023-06-01",
+    "content-type": "application/json",
+  };
+  const payload: Record<string, unknown> = {
+    model,
+    system,
+    messages: messages.map((m) => ({ role: m.role === "assistant" ? "assistant" : "user", content: String(m.content ?? "") })),
+    max_tokens: Math.min(Number(max_tokens) || 1000, MAX_TOKENS_CAP),
+  };
+  if (model === "claude-haiku-5-5") {
+    // Haiku 5.5 thinks by default; these are short, latency-sensitive turns, and thinking
+    // otherwise eats max_tokens and can leave the text reply empty.
+    payload.thinking = { type: "disabled" };
+  } else {
+    // Sonnet 5.5 keeps adaptive thinking (it cannot be disabled). On a safety decline,
+    // the server retries the request on another model instead of failing.
+    headers["anthropic-beta"] = "server-side-fallback-2026-07-01";
+    payload.fallbacks = "default";
+  }
+
   const upstream = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
-    headers: {
-      "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01",
-      "content-type": "application/json",
-    },
-    body: JSON.stringify({
-      model,
-      system,
-      messages: messages.map((m) => ({ role: m.role === "assistant" ? "assistant" : "user", content: String(m.content ?? "") })),
-      max_tokens: Math.min(Number(max_tokens) || 1000, MAX_TOKENS_CAP),
-    }),
+    headers,
+    body: JSON.stringify(payload),
   });
 
   return new Response(await upstream.text(), {
